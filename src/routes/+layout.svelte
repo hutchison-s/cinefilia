@@ -1,6 +1,7 @@
 <script lang="ts">
 	import '../app.css';
-	import favicon from '$lib/assets/favicon.svg';
+	import favicon from '$lib/assets/icon.png';
+	import watermark from '$lib/assets/logo.png';
 	import type { LayoutData } from './$types';
 
   const { data, children } = $props<{
@@ -11,11 +12,12 @@
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 
+<img src={watermark} alt="Cinefilia" class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-10 aspect-square pointer-events-none select-none" />
 <main class="inset-0 h-screen overflow-y-auto overflow-x-hidden bg-gradient-to-br from-black via-slate-950 to-gray-900">
 <header class="bg-black/50 p-4 shadow-lg">
 	<a href="/" class="flex items-center gap-1">
-		<div class="rounded-full bg-gradient-primary-secondary shadow-lg size-6"></div>
-		<h1 class="text-2xl font-light text-transparent bg-clip-text bg-gradient-secondary-primary">Cinefilia</h1>
+		<img src={favicon} alt="Cinefilia" class="w-6 h-6" />
+		<span class="text-white font-bold text-lg">Cinefilia</span>
 	</a>
 </header>
 <div class="w-full px-6 py-4">
