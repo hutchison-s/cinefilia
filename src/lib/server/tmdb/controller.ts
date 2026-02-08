@@ -11,6 +11,78 @@ type Pagination = {
   page?: number;
 };
 
+export type SearchType = 'multi' | 'movie' | 'tv' | 'person';
+
+type SearchOptions = Pagination & {
+  query: string;
+  includeAdult?: boolean;
+  year?: number; // movie-only
+};
+
+// ─────────────────────────────────────────────
+// Movie Details Types
+// ─────────────────────────────────────────────
+
+type Collection = {
+  id: number;
+  name: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+};
+
+type Genre = {
+  id: number;
+  name: string;
+};
+
+type ProductionCompany = {
+  id: number;
+  logo_path: string | null;
+  name: string;
+  origin_country: string;
+};
+
+type ProductionCountry = {
+  iso_3166_1: string;
+  name: string;
+};
+
+type SpokenLanguage = {
+  english_name: string;
+  iso_639_1: string;
+  name: string;
+};
+
+export type MovieDetails = {
+  adult: boolean;
+  backdrop_path: string | null;
+  belongs_to_collection: Collection | null;
+  budget: number;
+  genres: Genre[];
+  homepage: string;
+  id: number;
+  imdb_id: string;
+  origin_country: string[];
+  original_language: string;
+  original_title: string;
+  overview: string;
+  popularity: number;
+  poster_path: string | null;
+  production_companies: ProductionCompany[];
+  production_countries: ProductionCountry[];
+  release_date: string;
+  revenue: number;
+  runtime: number;
+  spoken_languages: SpokenLanguage[];
+  status: string;
+  tagline: string;
+  title: string;
+  video: boolean;
+  vote_average: number;
+  vote_count: number;
+};
+
+
 export class TMDB {
   private static readonly BASE_URL = 'https://api.themoviedb.org/3';
 
@@ -139,8 +211,8 @@ export class TMDB {
   // Movie details
   // ─────────────────────────────────────────────
 
-  static async getMovie(id: number, append?: string) {
-    return this.fetch(`/movie/${id}`, {
+  static async getMovie(id: number, append?: string): Promise<MovieDetails> {
+    return this.fetch<MovieDetails>(`/movie/${id}`, {
       append_to_response: append
     });
   }
@@ -156,4 +228,56 @@ export class TMDB {
   static async getGenres() {
     return this.fetch('/genre/movie/list');
   }
+
+  // ─────────────────────────────────────────────
+// Search
+// ─────────────────────────────────────────────
+
+private static sortByPopularity<T extends { popularity?: number }>(
+  results: T[]
+) {
+  return [...results].sort(
+    (a, b) => (b.popularity ?? 0) - (a.popularity ?? 0)
+  );
+}
+
+static async search(
+  type: SearchType,
+  {
+    query,
+    page = 1,
+    includeAdult = false,
+    year
+  }: SearchOptions
+) {
+  if (!query?.trim()) {
+    return this.paginate({
+      page: 1,
+      results: [],
+      total_pages: 0,
+      total_results: 0
+    });
+  }
+
+  const params: Record<string, string | number | undefined> = {
+    query,
+    page,
+    include_adult: includeAdult ? 'true' : 'false'
+  };
+
+  if (type === 'movie' && year) {
+    params.year = year;
+  }
+
+  const data = await this.fetch<TMDBListResponse<any>>(
+    `/search/${type}`,
+    params
+  );
+
+  return this.paginate({
+    ...data,
+    results: this.sortByPopularity(data.results)
+  });
+}
+
 }

@@ -1,11 +1,24 @@
 <script lang="ts">
-    export let title: string | undefined = undefined;
-    export let cardClass: string = '';
+    const props = $props<{
+        title?: string;
+        cardClass?: string;
+        onClick?: () => void;
+        children?: ()=> any;
+    }>();
 </script>
 
-<div class="p-8 px-12 border border-white/10 rounded-xl shadow-lg bg-white/5 backdrop-blur-lg max-w-lg mx-auto mt-10 {cardClass}">
-    {#if title}
-        <h1 class="text-center mb-8 text-gray-200 text-2xl font-bold">{title}</h1>
+{#if props.onClick}
+<button onclick={props.onClick} class="border border-white/10 rounded-xl shadow-lg bg-white/5 backdrop-blur-lg max-w-lg {props.cardClass}">
+    {#if props.title}
+        <h1 class="text-center mb-8 text-gray-200 text-2xl font-bold">{props.title}</h1>
     {/if}
-    <slot></slot>
+    {@render props.children?.()}
+</button>
+{:else}
+<div class="border border-white/10 rounded-xl shadow-lg bg-white/5 backdrop-blur-lg max-w-lg {props.cardClass}">
+    {#if props.title}
+        <h1 class="text-center mb-8 text-gray-200 text-2xl font-bold">{props.title}</h1>
+    {/if}
+    {@render props.children?.()}
 </div>
+{/if}
