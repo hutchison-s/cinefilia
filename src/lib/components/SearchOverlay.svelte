@@ -18,7 +18,7 @@
 
   $effect(()=> {
     if (results.length > 0) {
-      console.log(results[0])
+      console.log($state.snapshot(results).slice(0,5).map(r => r.title));
     }
   })
 
@@ -68,7 +68,7 @@
         <p class="text-zinc-400 text-sm">Start typing to search</p>
       {/if}
 
-      {#each results as item}
+      {#each results as item (item.id)}
        <MovieCardWithActions
           title={item.title}
           poster_path={item.poster_path}

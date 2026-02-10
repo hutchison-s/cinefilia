@@ -30,6 +30,7 @@
   let loading = $state(false);
 
   let timeout: ReturnType<typeof setTimeout> | null = null;
+  let controller: AbortController | null = null;
 
   async function runSearch() {
     const trimmed = query.trim();
@@ -42,8 +43,13 @@
     loading = true;
 
     try {
+      // cancel any in-flight request so newer queries replace older results
+      if (controller) controller.abort();
+      controller = new AbortController();
+
       const res = await fetch(
-        `/api/search?q=${encodeURIComponent(trimmed)}&type=${type}`
+        `/api/search?q=${encodeURIComponent(trimmed)}&type=${type}`,
+        { signal: controller.signal }
       );
 
       if (!res.ok) throw new Error('Search failed');
@@ -60,9 +66,14 @@
         }
       });
     } catch {
+      // ignore aborts, surface other errors
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const e: any = arguments[0];
+      if (e && e.name === 'AbortError') return;
       props.onError?.('Search failed');
     } finally {
       loading = false;
+      controller = null;
     }
   }
 
@@ -82,6 +93,20 @@
     };
   });
 </script>
+
+<style>
+  /* hide native clear/cancel affordances so our single clear button is used */
+  input[type="search"]::-webkit-search-cancel-button,
+  input[type="search"]::-webkit-search-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  input[type="search"]::-ms-clear,
+  input[type="search"]::-ms-reveal {
+    display: none;
+  }
+</style>
 
 <div class="relative w-full">
   <input
