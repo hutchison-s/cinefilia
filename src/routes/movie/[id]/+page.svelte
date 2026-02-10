@@ -2,12 +2,13 @@
 	import Button from "$lib/components/Button.svelte";
 	import ReviewModal from "$lib/components/ReviewModal.svelte";
 	import { CircleCheck } from "lucide-svelte";
-	import type { LayoutServerData } from "../../$types";
-    import type { LayoutServerData as LocalLayoutServerData } from "./$types";
 	import ReviewCard from "$lib/components/ReviewCard.svelte";
 
-    let {data} = $props<{data: LocalLayoutServerData & LayoutServerData}>()
+    let {data} = $props();
     const releaseYear = $derived(data.movie?.release_date ? new Date(data.movie.release_date).getFullYear() : 'N/A');
+    let thisWatched = $derived(data.watched?.find(item => item.mediaId === data.movie?.id.toString()) || null);
+    let thisWatchNext = $derived(data.watchNext?.find(item => item.mediaId === data.movie?.id.toString()) || null);
+    let thisReview = $derived(data.reviews?.find((r) => r.mediaId === data.movie?.id.toString()) || null);
 
     let showReviewModal = $state(false);
 
@@ -61,9 +62,9 @@
         <p class="text-gray-400 text-lg">{releaseYear}</p>
         <p class="text-gray-200">{data.movie?.overview}</p>
         <div class="flex gap-2 items-center">
-            {#if data.watched.find(item => item.mediaId === data.movie?.id.toString())}
+            {#if thisWatched}
                 <span class="text-green-400 font-semibold flex gap-2 items-center"><CircleCheck class="text-green-400"/> Watched</span>
-            {:else if data.watchNext.find(item => item.mediaId === data.movie?.id.toString())}
+            {:else if thisWatchNext}
                 <span class="text-primary font-semibold flex gap-2 items-center"><CircleCheck class="text-primary"/> In Watch Next</span>
                 <Button type="secondary" on:click={handleMarkAsWatched}>
                     Mark as Watched
@@ -78,8 +79,8 @@
             {/if}
         </div>
         <ReviewCard
-            rating={data.movie?.rating || 0}
-            review={data.reviews.find((r) => r.mediaId === data.movie?.id.toString())?.reviewText || ''}
+            rating={Number(thisWatched?.rating || 0)}
+            review={thisReview?.body || ''}
             onClick={() => showReviewModal = true}
         />
     </div>
@@ -87,8 +88,8 @@
 
 <ReviewModal
   isOpen={showReviewModal}
-  initialRating={data.movie?.rating || 0}
-  initialReview={data.reviews.find((r) => r.mediaId === data.movie?.id.toString())?.reviewText || ''}
+  initialRating={Number(thisWatched?.rating || 0)}
+  initialReview={thisReview?.body || ''}
   onSubmit={handleReviewSubmit}
   onClose={() => (showReviewModal = false)}
 />
