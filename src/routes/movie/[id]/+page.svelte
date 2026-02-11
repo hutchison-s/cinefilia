@@ -53,6 +53,18 @@
         }
     };
 
+    const handleRemoveFromWatched = async () => {
+        const response = await fetch(`?/removeFromWatched`, {
+            method: 'POST',
+            body: new FormData()
+        });
+        if (response.ok) {
+            invalidateAll(); // Refresh data to remove the movie from Watched list
+        } else {
+            alert('Failed to remove movie from Watched list.');
+        }
+    };
+
     const handleReviewSubmit = async (payload: { rating: number; review: string }) => {
         const { rating, review } = payload;
         const formData = new FormData();
@@ -65,8 +77,10 @@
         });
         
         if (response.ok) {
+            // @ts-ignore
             data.movieWatched = { ...data.movieWatched, rating }; // Update local state with new rating
-            data.movieReview = { body: review }; // Update local state with new review
+            // @ts-ignore
+            data.movieReview = { ...data.movieReview, body: review }; // Update local state with new review
             await invalidateAll(); // Refresh data to show the new review
         } else {
             alert('Failed to add review.');
@@ -107,6 +121,13 @@
                 showReviewModal = true;
             }}
         />
+        {/if}
+        {#if data.movieWatched}
+            <button 
+                class="text-danger" 
+                onclick={handleRemoveFromWatched}>
+                Remove from Watched List
+            </button>
         {/if}
     </div>
 </div>

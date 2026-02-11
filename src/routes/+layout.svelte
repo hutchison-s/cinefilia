@@ -5,6 +5,8 @@
 	import HeaderSearch from '$lib/components/HeaderSearch.svelte';
 	import SearchOverlay from '$lib/components/SearchOverlay.svelte';
 	import Menu from '$lib/components/Menu.svelte';
+	import BackButton from '$lib/components/BackButton.svelte';
+	import { page } from '$app/stores';
 
   const { data, children } = $props<{
     data: LayoutData;
@@ -24,6 +26,9 @@
 		<span class="text-white font-bold text-lg">Cinefilia</span>
 	</a>
 	<div class="flex gap-2 items">
+		{#if $page.url.pathname !== '/'}
+			<BackButton />
+		{/if}
 		<Menu links={[
 			{label: "Home", href: "/"}, 
 			{label: "Watched", href: "/watched"}, 

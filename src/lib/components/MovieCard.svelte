@@ -5,12 +5,13 @@
   const props = $props<{
     title: string;
     poster_path?: string;
-    rating: number;
+    rating?: number;
     release_date?: string;
+    releaseYear?: number;
     onClick?: () => void;
   }>();
 
-  const releaseYear = props.release_date
+  const releaseYear = props.releaseYear ?? props.release_date
     ? new Date(props.release_date).getFullYear()
     : null;
 </script>

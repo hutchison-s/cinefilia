@@ -1,6 +1,6 @@
 <script lang="ts">
   export let btnClass = '';
-  export let type: 'primary' | 'secondary' | 'danger' = 'primary';
+  export let type: 'primary' | 'secondary' | 'danger' | 'back' = 'primary';
   export let disabled = false;
   export let fullWidth = false;
   export let buttonType: 'button' | 'submit' | 'reset' = 'button';
@@ -11,8 +11,9 @@
   const variants = {
     primary: 'bg-gradient-primary hover:bg-gradient-secondary-primary text-white hover:opacity-90',
     secondary:
-      'bg-transparent text-secondary border border-secondary-500 hover:bg-secondary-100 disabled:bg-secondary-200',
-    danger: 'bg-danger text-white hover:brightness-90 disabled:bg-danger-300'
+      'bg-gradient-secondary text-white hover:brightness-110 disabled:saturation-50 disabled:opacity-50',
+    danger: 'bg-danger text-white hover:brightness-90 disabled:bg-danger-300',
+    back: '!p-2 bg-transparent text-gray-400 rounded hover:text-gray-200 disabled:opacity-50 disabled:saturation-50'
   };
 </script>
 

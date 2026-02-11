@@ -13,7 +13,8 @@
 </svelte:head>
 
 <div class="w-full max-w-7xl mx-auto">
-  <h1 class="text-3xl font-bold text-white mb-6">Watch Next</h1>
+    <h1 class="text-3xl font-bold text-white mb-6">Watch Next</h1>
+  
 
   {#if data.items.length === 0}
     <div class="text-center text-zinc-400 py-12">

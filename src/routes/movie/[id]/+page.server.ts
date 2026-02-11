@@ -1,8 +1,8 @@
 import { Profile } from "$lib/server/profile";
 import { TMDB } from "$lib/server/tmdb/controller";
-import type { Actions } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
 
-export const load = async ({ params, parent, locals }) => {
+export const load: PageServerLoad = async ({ params, parent }) => {
   const { watched, watchNext, reviews } = await parent()
   const id = Number(params.id);
   const movie = await TMDB.getMovie(Number(id), [
@@ -62,6 +62,16 @@ export const actions: Actions = {
       releaseYear: release_date ? new Date(release_date).getFullYear() : undefined
     });
     return { success: true, message: 'Movie marked as watched' }; 
+  },
+  removeFromWatched: async ({ request, locals, params }) => {
+    if (!locals.user) {
+      return { success: false, message: 'User not logged in' };
+    }
+    const id = Number(params.id);
+    const profile = Profile.forUser(locals.user.id);
+    await profile.watched.remove(id.toString());
+    await profile.reviews.remove(id.toString());
+    return { success: true, message: 'Movie removed from watched list' }; 
   },
   addReview: async ({ request, locals, params }) => {
       if (!locals.user) {
