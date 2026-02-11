@@ -3,7 +3,8 @@
 	import NavButton from "./NavButton.svelte";
 
 </script>
-<BasicCard title="Welcome to Cinefilia">
+<BasicCard title="Welcome to Cinefilia"
+  cardClass="p-6 max-w-md mx-auto mt-20">
   <p class="mt-4 text-center text-sm text-slate-400">
     Movies that <span class="font-medium text-slate-100">stay with you</span>.
   </p>

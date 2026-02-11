@@ -7,7 +7,7 @@
     onClick?: () => void;
   }>();
 
-  const { rating, review = '', onClick } = props;
+  const { rating, review = '', onClick } = $derived(props);
 
   function starFill(index: number) {
     if (rating >= index + 1) return 1;
@@ -18,9 +18,10 @@
 
 <button
   type="button"
-  on:click={onClick}
+  onclick={onClick}
   class="
     w-full text-left
+    max-w-xl
     bg-zinc-900 border border-white/10
     rounded-lg p-4
     hover:bg-zinc-800 transition
@@ -28,19 +29,19 @@
   "
 >
   <!-- Star rating -->
-  <div class="flex gap-1 mb-2">
+  <div class="flex gap-1 items-center mb-2">
     {#each Array(5) as _, i}
-      <div class="relative w-5 h-5">
+      <div class="relative w-8 h-8">
         <!-- empty -->
         <Star
-          class="absolute inset-0 w-5 h-5 text-zinc-600"
+          class="absolute inset-0 w-8 h-8 text-zinc-600"
           stroke-width="1.5"
         />
 
         {#if starFill(i) > 0}
           <!-- filled -->
           <Star
-            class="absolute inset-0 w-5 h-5 text-yellow-400 fill-yellow-400"
+            class="absolute inset-0 w-8 h-8 text-yellow-400 fill-yellow-400"
             stroke-width="1.5"
             style={
               starFill(i) === 0.5
@@ -55,7 +56,7 @@
 
   <!-- Review text -->
   {#if review}
-    <p class="text-zinc-300 text-sm leading-relaxed line-clamp-4">
+    <p class="text-zinc-300 text-md leading-relaxed line-clamp-4">
       {review}
     </p>
   {:else}

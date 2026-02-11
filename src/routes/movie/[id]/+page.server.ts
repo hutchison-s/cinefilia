@@ -2,7 +2,22 @@ import { Profile } from "$lib/server/profile";
 import { TMDB } from "$lib/server/tmdb/controller";
 import type { Actions } from "./$types";
 
-
+export const load = async ({ params, parent, locals }) => {
+  const { watched, watchNext, reviews } = await parent()
+  const id = Number(params.id);
+  const movie = await TMDB.getMovie(Number(id), [
+    'credits',
+    'videos',
+    'images',
+    'recommendations'
+  ].join(','));
+  return {
+    movie,
+    movieWatched: watched?.find(item => item.mediaId === id.toString()) || null,
+    movieWatchNext: watchNext?.find(item => item.mediaId === id.toString()) || null,
+    movieReview: reviews?.find(r => r.mediaId === id.toString() && r.mediaType === 'movie') || null
+  }
+}
 
 export const actions: Actions = {
   addToWatchNext: async ({ request, locals, params }) => {
@@ -21,6 +36,15 @@ export const actions: Actions = {
       releaseYear: release_date ? new Date(release_date).getFullYear() : undefined
     });
     return { success: true, message: 'Movie added to watchlist' }; 
+  },
+  removeFromWatchNext: async ({ request, locals, params }) => {
+    if (!locals.user) {
+      return { success: false, message: 'User not logged in' };
+    }
+    const id = Number(params.id);
+    const profile = Profile.forUser(locals.user.id);
+    await profile.watchNext.remove(id.toString());
+    return { success: true, message: 'Movie removed from watchlist' }; 
   },
   markWatched: async ({ request, locals, params }) => {
     if (!locals.user) {
@@ -48,11 +72,20 @@ export const actions: Actions = {
       const reviewText = String(formData.get('reviewText') || '');
       const id = Number(params.id);
       const profile = Profile.forUser(locals.user.id);
-      await profile.reviews.create({
-        mediaId: id.toString(),
-        mediaType: 'movie',
-        body: reviewText
-      });
+      const existingReviews = await profile.reviews.list()
+      const existingReview = existingReviews.find(r => r.mediaId === id.toString() && r.mediaType === 'movie');
+      if (existingReview) {
+        await profile.reviews.update(
+          id.toString(),
+          { body: reviewText}
+        );
+      } else {
+        await profile.reviews.create({
+          mediaId: id.toString(),
+          mediaType: 'movie',
+          body: reviewText
+        });
+      }
       await profile.watched.updateRating(id.toString(), rating);
       return { success: true, message: 'Review added successfully' }; 
     }

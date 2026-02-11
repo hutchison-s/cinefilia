@@ -12,7 +12,8 @@
 	}
 </script>
 
-<BasicCard title={isNewUser ? 'Sign Up' : 'Login'}>
+<BasicCard title={isNewUser ? 'Sign Up' : 'Login'}
+  cardClass="p-6 w-full max-w-md mx-auto mt-12">
 	<form
 		method="POST"
 		action={isNewUser ? '?/signup' : '?/login'}

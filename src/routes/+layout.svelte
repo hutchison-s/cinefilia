@@ -24,7 +24,12 @@
 		<span class="text-white font-bold text-lg">Cinefilia</span>
 	</a>
 	<div class="flex gap-2 items">
-		<Menu links={[{label: "Home", href: "/"}, {label: "Watched List", href: "/watched"}, {label: "Watch Next List", href: "/watch-next"}, {label: "Logout", href: "/logout"}]}/>
+		<Menu links={[
+			{label: "Home", href: "/"}, 
+			{label: "Watched", href: "/watched"}, 
+			{label: "Watch Next", href: "/watch-next"}, 
+			{label: "Logout", href: "/logout"}
+		]}/>
 		<HeaderSearch onOpen={() => isSearchOpen = true} />
 	</div>
 

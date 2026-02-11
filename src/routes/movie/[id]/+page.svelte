@@ -3,12 +3,14 @@
 	import ReviewModal from "$lib/components/ReviewModal.svelte";
 	import { CircleCheck } from "lucide-svelte";
 	import ReviewCard from "$lib/components/ReviewCard.svelte";
+	import { invalidateAll } from "$app/navigation";
 
     let {data} = $props();
-    const releaseYear = $derived(data.movie?.release_date ? new Date(data.movie.release_date).getFullYear() : 'N/A');
-    let thisWatched = $derived(data.watched?.find(item => item.mediaId === data.movie?.id.toString()) || null);
-    let thisWatchNext = $derived(data.watchNext?.find(item => item.mediaId === data.movie?.id.toString()) || null);
-    let thisReview = $derived(data.reviews?.find((r) => r.mediaId === data.movie?.id.toString()) || null);
+
+    let rating = $derived(Number(data.movieWatched?.rating || 0));
+    let review = $derived(data.movieReview?.body || '');
+
+    let releaseYear = $derived(data.movie ? new Date(data.movie.release_date).getFullYear() : null);
 
     let showReviewModal = $state(false);
 
@@ -18,9 +20,21 @@
             body: new FormData()
         });
         if (response.ok) {
-            alert('Movie added to your Watchlist!');
+            invalidateAll(); // Refresh data to show the movie in Watch Next
         } else {
             alert('Failed to add movie to Watchlist.');
+        }
+    };
+
+    const handleRemoveFromWatchNext = async () => {
+        const response = await fetch(`?/removeFromWatchNext`, {
+            method: 'POST',
+            body: new FormData()
+        });
+        if (response.ok) {
+            invalidateAll(); // Refresh data to remove the movie from Watch Next
+        } else {
+            alert('Failed to remove movie from Watchlist.');
         }
     };
 
@@ -31,6 +45,9 @@
         });
         if (response.ok) {
             showReviewModal = true;
+            if (data.movieWatchNext) {
+                await handleRemoveFromWatchNext();
+            }
         } else {
             alert('Failed to mark movie as watched.');
         }
@@ -48,24 +65,28 @@
         });
         
         if (response.ok) {
-            alert('Review added successfully!');
+            data.movieWatched = { ...data.movieWatched, rating }; // Update local state with new rating
+            data.movieReview = { body: review }; // Update local state with new review
+            await invalidateAll(); // Refresh data to show the new review
         } else {
             alert('Failed to add review.');
         }
     };
 
 </script>
-<div class="flex flex-col md:flex-row gap-6 h-full overflow-auto p-6">
-    <div class="flex flex-col gap-4">
-        <img src={`https://image.tmdb.org/t/p/w500${data.movie?.poster_path}`} alt={data.movie?.title} class="rounded-lg shadow-lg" />
+<div class="flex flex-col gap-6 h-full overflow-auto p-2 max-w-[600px] xl:mx-auto">
+    <div class="flex flex-col gap-4 ">
+        <img src={`https://image.tmdb.org/t/p/w500${data.movie?.poster_path}`} alt={data.movie?.title} class="rounded-lg shadow-lg md:w-40" />
         <h1 class="text-white text-3xl font-bold">{data.movie?.title}</h1>
         <p class="text-gray-400 text-lg">{releaseYear}</p>
         <p class="text-gray-200">{data.movie?.overview}</p>
-        <div class="flex gap-2 items-center">
-            {#if thisWatched}
+        <div class="grid grid-cols-2 gap-2 items-center">
+            {#if data.movieWatched}
                 <span class="text-green-400 font-semibold flex gap-2 items-center"><CircleCheck class="text-green-400"/> Watched</span>
-            {:else if thisWatchNext}
-                <span class="text-primary font-semibold flex gap-2 items-center"><CircleCheck class="text-primary"/> In Watch Next</span>
+            {:else if data.movieWatchNext}
+                <Button type="danger" on:click={handleRemoveFromWatchNext}>
+                    Remove from WatchNext
+                </Button>
                 <Button type="secondary" on:click={handleMarkAsWatched}>
                     Mark as Watched
                 </Button>
@@ -78,18 +99,22 @@
                 </Button>
             {/if}
         </div>
+        {#if data.movieWatched}
         <ReviewCard
-            rating={Number(thisWatched?.rating || 0)}
-            review={thisReview?.body || ''}
-            onClick={() => showReviewModal = true}
+            rating={rating}
+            review={review}
+            onClick={() => {
+                showReviewModal = true;
+            }}
         />
+        {/if}
     </div>
 </div>
 
 <ReviewModal
   isOpen={showReviewModal}
-  initialRating={Number(thisWatched?.rating || 0)}
-  initialReview={thisReview?.body || ''}
+  initialRating={rating}
+  initialReview={review}
   onSubmit={handleReviewSubmit}
   onClose={() => (showReviewModal = false)}
 />

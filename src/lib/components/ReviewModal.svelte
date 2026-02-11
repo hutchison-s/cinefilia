@@ -15,7 +15,7 @@
     initialReview = '',
     onSubmit,
     onClose
-  } = props;
+  } = $derived(props);
 
   let rating = $state(0);
   let review = $state('');

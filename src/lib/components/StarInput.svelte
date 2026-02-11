@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Star } from 'lucide-svelte';
+  import { SquareMinus, SquarePlus, Star } from 'lucide-svelte';
 
   const props = $props<{
     value?: number;              // current rating (0–5, halves allowed)
@@ -13,7 +13,7 @@
     max = 5,
     readonly = false,
     onChange
-  } = props;
+  } = $derived(props);
 
   let hoverValue = $state<number | null>(null);
 
@@ -49,7 +49,7 @@
 </script>
 
 <div
-  class="flex gap-1"
+  class="flex gap-1 items-center"
   role="slider"
   aria-valuemin="0"
   aria-valuemax={max}
@@ -57,10 +57,17 @@
   tabindex={readonly ? undefined : 0}
   onkeydown={onKey}
 >
+<button class="p-1" onclick={()=>{setRating(Math.max(0, value - 0.5))}}>
+  <SquareMinus
+    class="w-10 h-10 text-zinc-600"
+    stroke-width="1.5"
+    aria-label="Clear rating"
+  />
+</button>
   {#each Array(max) as _, i}
     <button
       type="button"
-      class="relative w-6 h-6 cursor-pointer"
+      class="relative w-10 h-10 cursor-pointer"
       disabled={readonly}
       onmouseenter={() => (hoverValue = i + 1)}
       onmouseleave={() => (hoverValue = null)}
@@ -69,14 +76,14 @@
     >
       <!-- empty star -->
       <Star
-        class="absolute inset-0 w-6 h-6 text-zinc-600"
+        class="absolute inset-0 w-10 h-10 text-zinc-600"
         stroke-width="1.5"
       />
 
       {#if starFill(i) > 0}
         <!-- filled star -->
         <Star
-          class="absolute inset-0 w-6 h-6 text-yellow-400 fill-yellow-400"
+          class="absolute inset-0 w-10 h-10 text-yellow-400 fill-yellow-400"
           stroke-width="1.5"
           style={
             starFill(i) === 0.5
@@ -87,4 +94,11 @@
       {/if}
     </button>
   {/each}
+  <button class="p-1" onclick={()=>{setRating(Math.min(max, value + 0.5))}}>
+  <SquarePlus
+    class="w-10 h-10 text-zinc-600"
+    stroke-width="1.5"
+    aria-label="Clear rating"
+  />
+</button>
 </div>

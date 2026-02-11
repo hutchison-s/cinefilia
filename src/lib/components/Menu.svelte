@@ -23,7 +23,7 @@
 	{#each links as link}
 		<a
 			href={link.href}
-			class="text-sm font-medium text-gray-700 hover:text-black"
+			class="text-sm font-medium text-gray-400 hover:text-secondary"
 			class:underline={$page.url.pathname === link.href}
 		>
 			{link.label}
@@ -33,7 +33,7 @@
 
 <!-- Mobile hamburger -->
 <button
-	class="md:hidden inline-flex items-center justify-center rounded-md p-2 text-gray-600 hover:text-secondary focus:outline-none focus:ring-2 focus:ring-black"
+	class="md:hidden inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:text-secondary focus:outline-none focus:ring-2 focus:ring-black"
 	aria-label="Toggle navigation"
 	aria-expanded={open}
 	onclick={toggle}

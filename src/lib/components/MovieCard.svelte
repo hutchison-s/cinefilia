@@ -1,10 +1,11 @@
 <script lang="ts">
   import BasicCard from './BasicCard.svelte';
+	import StarDisplay from './StarDisplay.svelte';
 
   const props = $props<{
     title: string;
     poster_path?: string;
-    backdrop_path?: string;
+    rating: number;
     release_date?: string;
     onClick?: () => void;
   }>();
@@ -15,31 +16,17 @@
 </script>
 
 <BasicCard cardClass="relative flex gap-3 p-3" onClick={props.onClick}>
-  {#if props.backdrop_path}
-    <!-- Backdrop layer -->
-    <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-xl">
-      <img
-        src={`https://image.tmdb.org/t/p/w500${props.backdrop_path}`}
-        alt=""
-        class="w-full h-full object-cover rounded-xl
-               saturate-25 brightness-50 blur-xs
-               backdrop-mask"
-      />
-      <!-- contrast overlay -->
-      <div class="absolute inset-0 bg-black/40 rounded-xl"></div>
-    </div>
-  {/if}
 
   <!-- Poster -->
   {#if props.poster_path}
     <img
       src={`https://image.tmdb.org/t/p/w92${props.poster_path}`}
       alt={`Poster of ${props.title}`}
-      class="w-20 h-auto rounded-md z-10"
+      class="w-14 h-auto rounded-md z-10"
     />
   {:else}
     <div
-      class="w-20 h-28 bg-gray-700 rounded-md
+      class="w-14 h-20 bg-gray-700 rounded-md
              flex items-center justify-center
              text-gray-400 text-sm z-10"
     >
@@ -48,15 +35,19 @@
   {/if}
 
   <!-- Content -->
-  <div class="flex flex-col justify-between flex-1 z-10">
-    <div>
-      <h3 class="text-xl text-white font-semibold leading-tight">
+  <div class="flex flex-col gap-1 flex-1 z-10">
+      <h3 class="text-2xl text-left w-full text-white font-semibold leading-tight">
         {props.title}
       </h3>
-      {#if releaseYear}
-        <p class="text-sm text-gray-400">{releaseYear}</p>
+      <div class="flex gap-4 items-center">
+        {#if releaseYear}
+        <p class="text-left text-xl text-gray-400">{releaseYear}</p>
       {/if}
-    </div>
+      {#if props.rating}
+        <StarDisplay rating={props.rating} size="md" />
+      {/if}
+      </div>
+      
   </div>
 </BasicCard>
 

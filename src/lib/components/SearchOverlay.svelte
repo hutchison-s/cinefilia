@@ -18,7 +18,7 @@
 
   $effect(()=> {
     if (results.length > 0) {
-      console.log($state.snapshot(results).slice(0,5).map(r => r.title));
+      console.log($state.snapshot(results).slice(0, 1));
     }
   })
 
@@ -34,7 +34,7 @@
 
 <!-- Backdrop -->
 <div
-  class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex items-start justify-center py-12"
+  class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex items-start justify-center py-12 pt-18"
   aria-hidden="true"
   onclick={props.onClose}
 >

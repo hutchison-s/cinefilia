@@ -20,7 +20,7 @@
       <p>No movies in your watch next list. Add some today!</p>
     </div>
   {:else}
-    <div class="grid gap-4">
+    <div class="grid gap-4 lg:grid-cols-2">
       {#each data.items as item}
         <MovieCard
           title={item.title}
