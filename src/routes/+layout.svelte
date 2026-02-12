@@ -33,6 +33,7 @@
 			{label: "Home", href: "/"}, 
 			{label: "Watched", href: "/watched"}, 
 			{label: "Watch Next", href: "/watch-next"}, 
+			{label: "About", href: "/about"},
 			{label: "Logout", href: "/logout"}
 		]}/>
 		<HeaderSearch onOpen={() => isSearchOpen = true} />

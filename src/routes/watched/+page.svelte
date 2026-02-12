@@ -3,208 +3,139 @@
   import MovieCard from '$lib/components/MovieCard.svelte';
   import { ArrowDownUp, Funnel, Search } from 'lucide-svelte';
   import type { PageData } from './$types';
-	import StarDisplay from '$lib/components/StarDisplay.svelte';
+  import StarDisplay from '$lib/components/StarDisplay.svelte';
 
-  const { data } = $props<{
-    data: PageData;
-  }>();
+  import {
+    applyListTransform,
+    type SortMode
+  } from '$lib/utils/listTransformer';
 
-  /* -------------------- SORT STATE -------------------- */
+  const { data } = $props<{ data: PageData }>();
 
-  type SortMode =
-  | 'newestYear'
-  | 'oldestYear'
-  | 'recentlyWatched'
-  | 'highestRated'
-  | 'lowestRated'
-  | 'titleAZ'
-  | 'titleZA';
+  /* -------------------- UI TOGGLES -------------------- */
 
-let sortMode = $state<SortMode>('recentlyWatched');
+  let showSearch = $state(false);
+  let showFilters = $state(false);
+  let showSort = $state(false);
 
-let showSortOptions = $state(false);
+  function toggleSearch() {
+    if (showSearch) searchQuery = '';
+    showSearch = !showSearch;
+    showFilters = false;
+    showSort = false;
+  }
 
-const toggleShowSortOptions = () => {
-  showSortOptions = !showSortOptions;
-  showFilterOptions = false;
-};
+  function toggleFilters() {
+    showFilters = !showFilters;
+    showSearch = false;
+    showSort = false;
+  }
 
-const handleResetSorting = () => {
-  sortMode = 'recentlyWatched';
-};
+  function toggleSort() {
+    showSort = !showSort;
+    showSearch = false;
+    showFilters = false;
+  }
+
+  /* -------------------- SEARCH -------------------- */
+
+  let searchQuery = $state('');
+
+  let isSearching = $derived(
+    searchQuery.trim().length > 0
+  );
+
+  /* -------------------- SORT -------------------- */
+
+  let sortMode = $state<SortMode>('recentlyWatched');
+
+  const sortOptions: { label: string; value: SortMode }[] = [
+    { label: 'Recently Watched', value: 'recentlyWatched' },
+    { label: 'Newest Year', value: 'newestYear' },
+    { label: 'Oldest Year', value: 'oldestYear' },
+    { label: 'Highest Rated', value: 'highestRated' },
+    { label: 'Lowest Rated', value: 'lowestRated' },
+    { label: 'Title (A–Z)', value: 'titleAZ' },
+    { label: 'Title (Z–A)', value: 'titleZA' }
+  ];
 
   let isSorting = $derived(
     sortMode !== 'recentlyWatched'
   );
 
-  /* -------------------- SEARCH STATE -------------------- */
-
-let showSearch = $state(false);
-let searchQuery = $state('');
-
-const toggleSearch = () => {
-  if (showSearch) {
-    searchQuery = '';
+  function resetSorting() {
+    sortMode = 'recentlyWatched';
   }
-  showSearch = !showSearch;
-  showFilterOptions = false;
-  showSortOptions = false;
-};
 
+  /* -------------------- FILTERS -------------------- */
 
-  /* -------------------- FILTER STATE -------------------- */
+  const yearMin = 1900;
+  const yearMax = new Date().getFullYear();
 
-let filterOption = $state<{
-  yearRange: number[] | null;
-  ratings: number[] | null;
-}>({
-  yearRange: null,
-  ratings: null
-});
+  let filterValues = $state({
+    yearRange: [yearMin, yearMax] as [number, number],
+    ratings: [] as number[]
+  });
 
-let filterValues = $state({
-  yearRange: [
-    1900,
-    new Date().getFullYear()
-  ],
-  ratings: [] as number[]
-});
+  let filters = $state<{
+    yearRange: [number, number] | null;
+    ratings: number[] | null;
+  }>({
+    yearRange: null,
+    ratings: null
+  });
 
+  function applyFilters() {
+    const [min, max] = filterValues.yearRange;
 
-let filterValueOptions = {
-  yearRange: { min: 1900, max: new Date().getFullYear() },
-  ratings: { min: 0, max: 5 }
-};
+    filters.yearRange =
+      min === yearMin && max === yearMax
+        ? null
+        : [min, max];
 
-let showFilterOptions = $state(false);
+    filters.ratings =
+      filterValues.ratings.length > 0
+        ? [...filterValues.ratings]
+        : null;
 
-const toggleShowFilterOptions = () => {
-  showFilterOptions = !showFilterOptions;
-  showSortOptions = false;
-};
+    showFilters = false;
+  }
 
-const handleApplyFilters = (e: MouseEvent) => {
-  e.stopPropagation();
-  showFilterOptions = false;
+  function resetFilters() {
+    filters.yearRange = null;
+    filters.ratings = null;
+    filterValues.yearRange = [yearMin, yearMax];
+    filterValues.ratings = [];
+  }
 
-  filterOption.yearRange = [...filterValues.yearRange];
-  filterOption.ratings =
-    filterValues.ratings.length > 0
-      ? [...filterValues.ratings]
-      : null;
-};
+  let isFiltering = $derived.by(() => {
+    const yearActive =
+      filters.yearRange !== null &&
+      (
+        filters.yearRange[0] !== yearMin ||
+        filters.yearRange[1] !== yearMax
+      );
 
-const handleResetFilters = () => {
-  filterOption.yearRange = null;
-  filterOption.ratings = null;
+    const ratingActive =
+      filters.ratings !== null &&
+      filters.ratings.length > 0;
 
-  filterValues.yearRange = [
-    1900,
-    new Date().getFullYear()
-  ];
-
-  filterValues.ratings = [];
-};
-
-
-let isFiltering = $derived.by(() => {
-  const yearMin = filterValueOptions.yearRange.min;
-  const yearMax = filterValueOptions.yearRange.max;
-
-  const yearActive =
-    filterOption.yearRange !== null &&
-    (
-      filterOption.yearRange[0] !== yearMin ||
-      filterOption.yearRange[1] !== yearMax
-    );
-
-  const ratingActive =
-    filterOption.ratings !== null &&
-    filterOption.ratings.length > 0;
-
-  return yearActive || ratingActive;
-});
-
-
-
+    return yearActive || ratingActive;
+  });
 
   /* -------------------- DERIVED LIST -------------------- */
 
-  let filteredAndSortedItems = $derived.by(() => {
-    let items = [...data.items];
-
-    /* ---------- Filtering ---------- */
-
-
-if (searchQuery.trim()) {
-  const q = searchQuery.toLowerCase();
-
-  items = items.filter((item) =>
-    item.title?.toLowerCase().includes(q)
+  let filteredItems = $derived.by(() =>
+    applyListTransform(
+      data.items,
+      {
+        yearRange: filters.yearRange,
+        ratings: filters.ratings,
+        searchQuery
+      },
+      sortMode
+    )
   );
-}
-
-
-    if (filterOption.yearRange) {
-  const [min, max] = filterOption.yearRange;
-
-  items = items.filter((item) =>
-    item.releaseYear != null &&
-    item.releaseYear >= min &&
-    item.releaseYear <= max
-  );
-}
-
-
-    if (filterOption.ratings?.length) {
-  items = items.filter((item) => {
-    if (!item.rating) return false;
-
-    const floored = Math.floor(item.rating);
-    return filterOption.ratings!.includes(floored);
-  });
-}
-
-
-    /* ---------- Sorting ---------- */
-
-    items.sort((a, b) => {
-  switch (sortMode) {
-    case 'newestYear':
-      return (b.releaseYear ?? 0) - (a.releaseYear ?? 0);
-
-    case 'oldestYear':
-      return (a.releaseYear ?? 0) - (b.releaseYear ?? 0);
-
-    case 'recentlyWatched':
-      return (
-        (new Date(b.watchedAt ?? 0).getTime() || 0) -
-        (new Date(a.watchedAt ?? 0).getTime() || 0)
-      );
-
-    case 'highestRated':
-      return (b.rating ?? 0) - (a.rating ?? 0);
-
-    case 'lowestRated':
-      return (a.rating ?? 0) - (b.rating ?? 0);
-
-    case 'titleAZ':
-      return (a.title ?? '').localeCompare(b.title ?? '');
-
-    case 'titleZA':
-      return (b.title ?? '').localeCompare(a.title ?? '');
-
-    default:
-      return 0;
-  }
-});
-
-
-    return items;
-  });
-
-$inspect(filteredAndSortedItems.slice(0, 2))
-
 </script>
 
 <svelte:head>
@@ -219,31 +150,32 @@ $inspect(filteredAndSortedItems.slice(0, 2))
 
   <div class="flex items-center gap-1">
     <button
-  class="bg-white/10 text-white p-2 rounded hover:bg-white/20"
-  class:bg-gradient-secondary={isFiltering}
-  onclick={toggleShowFilterOptions}
->
-  <Funnel size="20" />
-</button>
+      class="bg-white/10 text-white p-2 rounded hover:bg-white/20"
+      class:bg-gradient-secondary={isFiltering}
+      onclick={toggleFilters}
+    >
+      <Funnel size="20" />
+    </button>
 
-<button
-  class="bg-white/10 text-white p-2 rounded hover:bg-white/20"
-  class:bg-gradient-secondary={isSorting}
-  onclick={toggleShowSortOptions}
->
-  <ArrowDownUp size="20" />
-</button>
+    <button
+      class="bg-white/10 text-white p-2 rounded hover:bg-white/20"
+      class:bg-gradient-secondary={isSorting}
+      onclick={toggleSort}
+    >
+      <ArrowDownUp size="20" />
+    </button>
 
-<button
-  class="bg-white/10 text-white p-2 rounded hover:bg-white/20"
-  class:bg-gradient-secondary={showSearch}
-  onclick={toggleSearch}
->
-  <Search size="20" />
-</button>
-
+    <button
+      class="bg-white/10 text-white p-2 rounded hover:bg-white/20"
+      class:bg-gradient-secondary={showSearch}
+      onclick={toggleSearch}
+    >
+      <Search size="20" />
+    </button>
   </div>
 </div>
+
+<!-- SEARCH -->
 {#if showSearch}
   <div class="fixed top-30 left-0 right-0 bg-gradient-primary z-9 px-4 py-3">
     <input
@@ -255,21 +187,19 @@ $inspect(filteredAndSortedItems.slice(0, 2))
   </div>
 {/if}
 
-
 <!-- LIST -->
 <div
   class="w-full max-w-7xl mx-auto relative"
   class:mt-32={showSearch}
   class:mt-16={!showSearch}
 >
-
   {#if data.items.length === 0}
     <div class="text-center text-zinc-400 py-12">
       <p>No movies watched yet. Start exploring!</p>
     </div>
   {:else}
     <div class="grid gap-4 lg:grid-cols-2">
-      {#each filteredAndSortedItems as item (item.id)}
+      {#each filteredItems as item (item.id)}
         <MovieCard
           title={item.title}
           poster_path={item.posterPath}
@@ -286,9 +216,9 @@ $inspect(filteredAndSortedItems.slice(0, 2))
 </div>
 
 <!-- FILTER MODAL -->
-{#if showFilterOptions}
+{#if showFilters}
   <div
-    onclick={() => (showFilterOptions = false)}
+    onclick={() => (showFilters = false)}
     class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
   >
     <div
@@ -299,94 +229,82 @@ $inspect(filteredAndSortedItems.slice(0, 2))
         Filter Options
       </h2>
 
-<!-- Year Range -->
-<div class="mb-4">
-  <label class="block text-sm text-gray-400 mb-2">
-    Release Year
-  </label>
+      <!-- Year -->
+      <div class="mb-4">
+        <label class="block text-sm text-gray-400 mb-2">
+          Release Year
+        </label>
 
-  <div class="flex gap-2 items-center">
-    <input
-      type="number"
-      bind:value={filterValues.yearRange[0]}
-      min={filterValueOptions.yearRange.min}
-      max={filterValueOptions.yearRange.max}
-      class="w-full p-2 rounded bg-gray-700 text-white"
-    />
-    <span class="text-gray-400">to</span>
-    <input
-      type="number"
-      bind:value={filterValues.yearRange[1]}
-      min={filterValueOptions.yearRange.min}
-      max={filterValueOptions.yearRange.max}
-      class="w-full p-2 rounded bg-gray-700 text-white"
-    />
+        <div class="flex gap-2 items-center">
+          <input
+            type="number"
+            bind:value={filterValues.yearRange[0]}
+            class="w-full p-2 rounded bg-gray-700 text-white"
+          />
+          <span class="text-gray-400">to</span>
+          <input
+            type="number"
+            bind:value={filterValues.yearRange[1]}
+            class="w-full p-2 rounded bg-gray-700 text-white"
+          />
+        </div>
+      </div>
+
+      <!-- Ratings -->
+      <div class="mb-4">
+        <label class="block text-sm text-gray-400 mb-2">
+          Ratings
+        </label>
+
+        <div class="flex flex-col gap-2">
+          {#each [5, 4, 3, 2, 1] as rating}
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                class="accent-secondary"
+                checked={filterValues.ratings.includes(rating)}
+                onchange={(e) => {
+                  if ((e.target as HTMLInputElement).checked) {
+                    filterValues.ratings = [
+                      ...filterValues.ratings,
+                      rating
+                    ];
+                  } else {
+                    filterValues.ratings =
+                      filterValues.ratings.filter(r => r !== rating);
+                  }
+                }}
+              />
+              <StarDisplay rating={rating} size="md" />
+            </label>
+          {/each}
+        </div>
+      </div>
+
+      <div class="flex justify-between gap-2 mt-4">
+        <button
+          class="bg-gray-600 text-white px-4 py-2 rounded"
+          onclick={resetFilters}
+          disabled={!isFiltering}
+        >
+          Reset
+        </button>
+
+        <button
+          class="bg-primary text-white px-4 py-2 rounded"
+          onclick={applyFilters}
+        >
+          Apply
+        </button>
+      </div>
+    </div>
   </div>
-</div>
-
-<!-- Rating Range -->
-
-  <div class="mb-4">
-  <label class="block text-sm text-gray-400 mb-2">
-    Ratings
-  </label>
-
-  <div class="flex flex-col gap-2">
-    {#each [5, 4, 3, 2, 1] as rating}
-      <label class="flex items-center gap-2 cursor-pointer">
-        <input
-          type="checkbox"
-          class="accent-secondary"
-          value={rating}
-          checked={filterValues.ratings.includes(rating)}
-          onchange={(e) => {
-            if ((e.target as HTMLInputElement).checked) {
-              filterValues.ratings = [
-                ...filterValues.ratings,
-                rating
-              ];
-            } else {
-              filterValues.ratings =
-                filterValues.ratings.filter((r) => r !== rating);
-            }
-          }}
-        />
-
-        <StarDisplay rating={rating} size="md" />
-      </label>
-    {/each}
-  </div>
-</div>
-
-
-<div class="flex justify-between gap-2 mt-4">
-  <button
-    class="bg-gray-600 text-white px-4 py-2 rounded disabled:bg-gray-700 disabled:opacity-50"
-    onclick={handleResetFilters}
-    disabled={
-      !isFiltering
-    }
-  >
-    Reset
-  </button>
-
-  <button
-    class="bg-primary text-white px-4 py-2 rounded"
-    onclick={handleApplyFilters}
-  >
-    Apply
-  </button>
-</div>
-</div>
-</div>
-
-
 {/if}
 
 <!-- SORT MODAL -->
-{#if showSortOptions}
+{#if showSort}
   <div
-    onclick={() => (showSortOptions = false)}
+    onclick={() => (showSort = false)}
     class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
   >
     <div
@@ -394,45 +312,34 @@ $inspect(filteredAndSortedItems.slice(0, 2))
       onclick={(e) => e.stopPropagation()}
     >
       <h2 class="text-xl font-semibold text-white mb-4">
-  Sort By
-</h2>
+        Sort By
+      </h2>
 
-<div class="grid grid-cols-2 gap-1">
-  {#each [
-    { label: 'Recently Watched', value: 'recentlyWatched' },
-    { label: 'Newest Year', value: 'newestYear' },
-    { label: 'Oldest Year', value: 'oldestYear' },
-    { label: 'Highest Rated', value: 'highestRated' },
-    { label: 'Lowest Rated', value: 'lowestRated' },
-    { label: 'Title (A–Z)', value: 'titleAZ' },
-    { label: 'Title (Z–A)', value: 'titleZA' }
-  ] as option}
-    <button
-      class="text-left px-3 py-2 rounded transition"
-      class:bg-primary={sortMode === option.value}
-      class:text-white={sortMode === option.value}
-      class:bg-gray-700={sortMode !== option.value}
-      class:text-gray-400={sortMode !== option.value}
-      onclick={() => {
-        sortMode = option.value as SortMode;
-        showSortOptions = false;
-      }}
-    >
-      {option.label}
-    </button>
-  {/each}
-</div>
+      <div class="grid grid-cols-2 gap-1">
+        {#each sortOptions as option}
+          <button
+            class="text-left px-3 py-2 rounded transition"
+            class:bg-primary={sortMode === option.value}
+            class:text-white={sortMode === option.value}
+            class:bg-gray-700={sortMode !== option.value}
+            class:text-gray-400={sortMode !== option.value}
+            onclick={() => {
+              sortMode = option.value;
+              showSort = false;
+            }}
+          >
+            {option.label}
+          </button>
+        {/each}
+      </div>
 
-<button
-  class="mt-4 bg-gray-600 text-white px-4 py-2 rounded disabled:bg-gray-700 disabled:opacity-50"
-  onclick={handleResetSorting}
-  disabled={
-    !isSorting
-  }
->
-  Reset
-</button>
-
+      <button
+        class="mt-4 bg-gray-600 text-white px-4 py-2 rounded"
+        onclick={resetSorting}
+        disabled={!isSorting}
+      >
+        Reset
+      </button>
     </div>
   </div>
 {/if}

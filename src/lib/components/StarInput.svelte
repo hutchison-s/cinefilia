@@ -2,18 +2,17 @@
   import { SquareMinus, SquarePlus, Star } from 'lucide-svelte';
 
   const props = $props<{
-    value?: number;              // current rating (0–5, halves allowed)
-    max?: number;                // default 5
-    readonly?: boolean;
-    onChange?: (value: number) => void;
-  }>();
+  value?: number;
+  max?: number;
+  readonly?: boolean;
+  onChange?: (value: number) => void;
+}>();
 
-  const {
-    value = 0,
-    max = 5,
-    readonly = false,
-    onChange
-  } = $derived(props);
+let value = $derived(props.value ?? 0);
+let max = $derived(props.max ?? 5);
+let readonly = $derived(props.readonly ?? false);
+let onChange = props.onChange;
+
 
   let hoverValue = $state<number | null>(null);
 
@@ -23,6 +22,7 @@
 
   function setRating(v: number) {
     if (readonly) return;
+    hoverValue = null;
     onChange?.(v);
   }
 
@@ -40,12 +40,30 @@
     }
   }
 
-  function starFill(index: number) {
-    const v = displayValue();
-    if (v >= index + 1) return 1;
-    if (v >= index + 0.5) return 0.5;
-    return 0;
+function starFill(index: number) {
+  const v = displayValue();
+  const starNumber = index + 1;
+
+  if (v >= starNumber) return 1;
+  if (v >= starNumber - 0.5) return 0.5;
+  return 0;
+}
+
+
+
+function handleStarClick(starIdx: number) {
+  if (value === starIdx) {
+    // full → half
+    setRating(starIdx - 0.5);
+  } else if (value === starIdx - 0.5) {
+    // half → full
+    setRating(starIdx);
+  } else {
+    // new selection → full
+    setRating(starIdx);
   }
+}
+
 </script>
 
 <div
@@ -66,33 +84,36 @@
 </button>
   {#each Array(max) as _, i}
     <button
-      type="button"
-      class="relative w-10 h-10 cursor-pointer"
-      disabled={readonly}
-      onmouseenter={() => (hoverValue = i + 1)}
-      onmouseleave={() => (hoverValue = null)}
-      onclick={() => setRating(i + 1)}
-      aria-label={`Rate ${i + 1} stars`}
+  type="button"
+  class="relative w-10 h-10 cursor-pointer"
+  disabled={readonly}
+  onmouseenter={() => (hoverValue = i + 1)}
+  onmouseleave={() => (hoverValue = null)}
+  onclick={() => handleStarClick(i + 1)}
+>
+  <!-- Empty star -->
+  <Star
+    class="absolute inset-0 w-10 h-10 text-zinc-600"
+    stroke-width="1.5"
+  />
+
+  {#if starFill(i) > 0}
+    <div
+      class="absolute inset-0 overflow-hidden"
+      style={
+        starFill(i) === 0.5
+          ? 'width: 50%'
+          : 'width: 100%'
+      }
     >
-      <!-- empty star -->
       <Star
-        class="absolute inset-0 w-10 h-10 text-zinc-600"
+        class="w-10 h-10 text-yellow-400 fill-yellow-400"
         stroke-width="1.5"
       />
+    </div>
+  {/if}
+</button>
 
-      {#if starFill(i) > 0}
-        <!-- filled star -->
-        <Star
-          class="absolute inset-0 w-10 h-10 text-yellow-400 fill-yellow-400"
-          stroke-width="1.5"
-          style={
-            starFill(i) === 0.5
-              ? 'clip-path: inset(0 50% 0 0)'
-              : undefined
-          }
-        />
-      {/if}
-    </button>
   {/each}
   <button class="p-1" onclick={()=>{setRating(Math.min(max, value + 0.5))}}>
   <SquarePlus
