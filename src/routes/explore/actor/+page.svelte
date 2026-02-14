@@ -66,7 +66,7 @@
   <title>Actors - Explore - Cinefilia</title>
 </svelte:head>
 
-<div class="fixed top-16 left-0 right-0 bg-gradient-primary backdrop-blur-md z-40 px-4 py-2 flex justify-between items-center">
+<div class="fixed top-18 left-0 right-0 bg-gradient-primary backdrop-blur-md z-10 px-4 py-2 flex justify-between items-center">
   <h1 class="text-2xl font-thin uppercase text-white font-semibold">
     Explore Actors
   </h1>
@@ -91,7 +91,7 @@
 </div>
 
 {#if showSearch}
-  <div class="fixed top-32 left-0 right-0 bg-gradient-primary z-30 px-4 py-3">
+  <div class="fixed top-30 left-0 right-0 bg-gradient-primary z-9 px-4 py-3">
     <input
       type="text"
       placeholder="Search actors..."
@@ -103,7 +103,7 @@
 
 <section
   class="px-4 space-y-3"
-  class:mt-44={showSearch}
+  class:mt-38={showSearch}
   class:mt-20={!showSearch}
 >
   {#if displayedActors.length === 0}
