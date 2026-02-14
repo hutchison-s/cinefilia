@@ -28,6 +28,7 @@
 
   let query = $state('');
   let loading = $state(false);
+  let inputEl: HTMLInputElement;
 
   let timeout: ReturnType<typeof setTimeout> | null = null;
   let controller: AbortController | null = null;
@@ -88,6 +89,13 @@
   }
 
   $effect(() => {
+    if (inputEl) {
+      queueMicrotask(() => inputEl?.focus());
+    }
+  });
+
+  $effect(() => {
+
     return () => {
       if (timeout) clearTimeout(timeout);
     };
@@ -110,6 +118,8 @@
 
 <div class="relative w-full">
   <input
+    bind:this={inputEl}
+    autofocus
     type="search"
     bind:value={query}
     oninput={onInput}

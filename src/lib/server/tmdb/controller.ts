@@ -35,6 +35,21 @@ type Genre = {
   name: string;
 };
 
+type Cast = {
+  adult: boolean;
+  cast_id: number;
+  character: string;
+  credit_id: string;
+  gender: number;
+  id: number;
+  known_for_department: string;
+  name: string;
+  order: number;
+  original_name: string;
+  popularity: number;
+  profile_path: string | null;
+};
+
 type ProductionCompany = {
   id: number;
   logo_path: string | null;
@@ -59,6 +74,9 @@ export type MovieDetails = {
   belongs_to_collection: Collection | null;
   budget: number;
   genres: Genre[];
+  credits: {
+    cast: Cast[];
+  };
   homepage: string;
   id: number;
   imdb_id: string;

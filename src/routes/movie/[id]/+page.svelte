@@ -14,6 +14,9 @@
 
     let showReviewModal = $state(false);
 
+    let topCast = $derived(data.movie?.credits.cast.slice(0,2) || [])
+    $inspect(topCast)
+
     const handleAddToWatchNext = async () => {
         const response = await fetch(`?/addToWatchNext`, {
             method: 'POST',
@@ -88,12 +91,20 @@
     };
 
 </script>
-<div class="flex flex-col gap-6 h-full overflow-auto p-2 max-w-[600px] xl:mx-auto">
+<div class="flex flex-col gap-6 h-full overflow-auto p-2 px-4 max-w-[600px] xl:mx-auto">
     <div class="flex flex-col gap-4 ">
         <img src={`https://image.tmdb.org/t/p/w500${data.movie?.poster_path}`} alt={data.movie?.title} class="rounded-lg shadow-lg md:w-40" />
         <h1 class="text-white text-3xl font-bold">{data.movie?.title}</h1>
-        <p class="text-gray-400 text-lg">{releaseYear}</p>
-        <p class="text-gray-200">{data.movie?.overview}</p>
+        <div class="flex gap-3 w-full my-2 border-y border-primary py-2">
+            <p class="text-secondary text-4xl">{releaseYear}</p>
+            <div>
+                {#each topCast as actor}
+                <p class="my-0 text-sm text-gray-200 font-thin"><strong>{actor.name}</strong> as <em>{actor.character}</em></p>
+                {/each}
+            </div>  
+        </div>
+
+        <p class="text-gray-400">{data.movie?.overview}</p>
         <div class="grid grid-cols-2 gap-2 items-center">
             {#if data.movieWatched}
                 <span class="text-green-400 font-semibold flex gap-2 items-center"><CircleCheck class="text-green-400"/> Watched</span>

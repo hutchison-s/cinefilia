@@ -114,8 +114,8 @@
 <!-- LIST -->
 <div
   class="w-full max-w-7xl mx-auto relative"
-  class:mt-32={showSearch}
-  class:mt-16={!showSearch}
+  class:mt-38={showSearch}
+  class:mt-20={!showSearch}
 >
   {#if displayedItems.length === 0}
     <div class="text-center text-zinc-400 py-12">

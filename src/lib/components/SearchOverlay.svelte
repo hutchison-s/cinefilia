@@ -4,11 +4,13 @@
 	import MovieCardWithActions from './MovieCardWithActions.svelte';
 
   const props = $props<{
+    watchedIds: string[];
+    watchNextIds: string[];
     onClose: () => void;
   }>();
 
   let results = $state<any[]>([]);
-  let dialog: HTMLDivElement;
+  let resultsContainer: HTMLDivElement;
 
   function onKeydown(e: KeyboardEvent) {
     if (e.key === 'Escape') {
@@ -19,12 +21,19 @@
   $effect(()=> {
     if (results.length > 0) {
       console.log($state.snapshot(results).slice(0, 1));
+      console.log(props.watchedIds)
     }
   })
 
   $effect(() => {
+    results;
+    if (resultsContainer) {
+      resultsContainer.scrollTop = 0;
+    }
+  });
+
+  $effect(() => {
     document.body.style.overflow = 'hidden';
-    dialog?.focus();
 
     return () => {
       document.body.style.overflow = '';
@@ -41,7 +50,6 @@
 
 <!-- Dialog wrapper -->
   <div
-    bind:this={dialog}
     role="dialog"
     aria-modal="true"
     aria-labelledby="search-title"
@@ -63,7 +71,7 @@
     />
 
     <!-- Results -->
-    <div class="mt-6 max-h-[60vh] overflow-y-auto grid gap-2">
+    <div bind:this={resultsContainer} class="mt-6 max-h-[60vh] overflow-y-auto grid gap-2">
       {#if results.length === 0}
         <p class="text-zinc-400 text-sm">Start typing to search</p>
       {/if}
@@ -74,6 +82,8 @@
           poster_path={item.poster_path}
           backdrop_path={item.backdrop_path}
           release_date={item.release_date}
+          is_watched={props.watchedIds.includes(String(item.id))}
+          is_watchNext={props.watchNextIds.includes(String(item.id))}
           onClick={()=>{
             goto(`/movie/${item.id}`);
             props.onClose();

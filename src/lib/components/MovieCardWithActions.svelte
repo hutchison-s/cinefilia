@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { CircleCheck } from 'lucide-svelte';
   import BasicCard from './BasicCard.svelte';
   import Button from './Button.svelte';
 
@@ -7,6 +8,8 @@
     poster_path?: string;
     backdrop_path?: string;
     release_date?: string;
+    is_watched?: boolean;
+    is_watchNext?: boolean
     onClick?: () => void;
     onAddToWatchlist?: () => void;
     onMarkAsWatched?: () => void;
@@ -17,9 +20,13 @@
     poster_path,
     backdrop_path,
     release_date,
+    is_watched,
+    is_watchNext,
     onAddToWatchlist,
     onMarkAsWatched
   } = props;
+
+  console.log(is_watched)
 
   const releaseYear = release_date
     ? new Date(release_date).getFullYear()
@@ -34,11 +41,11 @@
         src={`https://image.tmdb.org/t/p/w500${backdrop_path}`}
         alt=""
         class="w-full h-full object-cover rounded-xl
-               saturate-25 brightness-50 blur-xs
+               saturate-50 brightness-50 blur-xs
                backdrop-mask"
       />
       <!-- contrast overlay -->
-      <div class="absolute inset-0 bg-black/40 rounded-xl" ></div>
+      <div class="absolute inset-0 bg-black/20 rounded-xl" ></div>
     </div>
   {/if}
 
@@ -47,11 +54,11 @@
     <img
       src={`https://image.tmdb.org/t/p/w92${poster_path}`}
       alt={`Poster of ${title}`}
-      class="w-20 h-auto rounded-md z-10"
+      class="w-16 h-auto rounded-md z-10"
     />
   {:else}
     <div
-      class="w-20 h-28 bg-gray-700 rounded-md
+      class="w-18 h-24 bg-gray-700 rounded-md
              flex items-center justify-center
              text-gray-400 text-sm z-10"
     >
@@ -62,21 +69,27 @@
   <!-- Content -->
   <div class="flex flex-col justify-between flex-1 z-10">
     <div>
-      <h3 class="text-xl text-white font-semibold leading-tight">
+      <h3 class="text-xl text-white text-left font-semibold leading-tight">
         {title}
       </h3>
       {#if releaseYear}
-        <p class="text-sm text-gray-400">{releaseYear}</p>
+        <p class="text-lg text-left text-gray-400">{releaseYear}</p>
       {/if}
     </div>
-
-    <div class="flex gap-2 mt-3">
-      {#if onAddToWatchlist}
-        <Button on:click={onAddToWatchlist}>
-          Add to Watch Next
-        </Button>
+    <div>
+    {#if is_watched}
+        <div class="w-full flex justify-end items-center gap-2 text-green-400">
+          Watched <CircleCheck class="text-sm" />
+        </div>
+        {:else if is_watchNext}
+        <div class="w-full flex justify-end items-center gap-2 text-primary-600">
+          Watch Next <CircleCheck class="text-sm" />
+        </div>
       {/if}
-
+    </div> 
+    
+    {#if onMarkAsWatched || onAddToWatchlist}
+    <div class="flex gap-2">
       {#if onMarkAsWatched}
         <Button
           type={onAddToWatchlist ? 'secondary' : 'primary'}
@@ -85,7 +98,14 @@
           Mark as Watched
         </Button>
       {/if}
+
+      {#if onAddToWatchlist}
+        <Button on:click={onAddToWatchlist}>
+          Add to Watch Next
+        </Button>
+      {/if}
     </div>
+    {/if}
   </div>
 </BasicCard>
 
