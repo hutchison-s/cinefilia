@@ -10,8 +10,15 @@ type TMDBListResponse<T> = {
 type Pagination = {
   page?: number;
 };
+type DiscoverPagination = Pagination & {
+  sortBy?: string;
+  originCountry?: string;
+  releaseDateGte?: string;
+  releaseDateLte?: string;
+};
 
 export type SearchType = 'multi' | 'movie' | 'tv' | 'person';
+export type ExploreType = 'genre' | 'decade' | 'actor';
 
 type SearchOptions = Pagination & {
   query: string;
@@ -33,6 +40,26 @@ type Collection = {
 type Genre = {
   id: number;
   name: string;
+};
+
+export type TMDBMovieListItem = {
+  id: number;
+  title: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  release_date: string;
+  vote_average: number;
+  popularity: number;
+};
+
+export type TMDBPerson = {
+  id: number;
+  name: string;
+  profile_path: string | null;
+  popularity: number;
+  known_for_department?: string;
+  birthday?: string | null;
+  deathday?: string | null;
 };
 
 type Cast = {
@@ -77,6 +104,14 @@ export type MovieDetails = {
   credits: {
     cast: Cast[];
   };
+  images: {
+    backdrops: Array<{
+      file_path: string;
+    }>;
+    posters: Array<{
+      file_path: string;
+    }>;
+  };
   homepage: string;
   id: number;
   imdb_id: string;
@@ -103,6 +138,7 @@ export type MovieDetails = {
 
 export class TMDB {
   private static readonly BASE_URL = 'https://api.themoviedb.org/3';
+  private static readonly MIN_SEARCH_POPULARITY = 2;
 
   private static get headers() {
     return {
@@ -181,16 +217,41 @@ export class TMDB {
     return this.paginate(data);
   }
 
+  static async getByReleaseDateRange(
+    {
+      page = 1,
+      sortBy = 'popularity.desc',
+      releaseDateGte,
+      releaseDateLte
+    }: DiscoverPagination = {}
+  ) {
+    const data = await this.fetch<TMDBListResponse<TMDBMovieListItem>>('/discover/movie', {
+      page,
+      sort_by: sortBy,
+      'primary_release_date.gte': releaseDateGte,
+      'primary_release_date.lte': releaseDateLte
+    });
+
+    return this.paginate(data);
+  }
+
   // ─────────────────────────────────────────────
   // Discover filters
   // ─────────────────────────────────────────────
 
+
+  static async listGenres() {
+    const data = await this.fetch<{genres: Genre[]}>('/genre/movie/list')
+    return data.genres
+  }
+
   static async getByGenre(
     genreId: number,
-    { page = 1 }: Pagination = {}
+    { page = 1, sortBy = 'popularity.desc' }: DiscoverPagination = {}
   ) {
     const data = await this.fetch<TMDBListResponse<any>>('/discover/movie', {
       with_genres: genreId,
+      sort_by: sortBy,
       page
     });
 
@@ -199,12 +260,12 @@ export class TMDB {
 
   static async getByYear(
     year: number,
-    { page = 1 }: Pagination = {}
+    { page = 1, sortBy = 'popularity.desc' }: DiscoverPagination = {}
   ) {
     const data = await this.fetch<TMDBListResponse<any>>('/discover/movie', {
       primary_release_year: year,
       page,
-      sort_by: 'popularity.desc'
+      sort_by: sortBy
     });
 
     return this.paginate(data);
@@ -213,16 +274,64 @@ export class TMDB {
   static async getByGenreAndYear(
     genreId: number,
     year: number,
-    { page = 1 }: Pagination = {}
+    { page = 1, sortBy = 'popularity.desc' }: DiscoverPagination = {}
   ) {
     const data = await this.fetch<TMDBListResponse<any>>('/discover/movie', {
       with_genres: genreId,
       primary_release_year: year,
       page,
-      sort_by: 'popularity.desc'
+      sort_by: sortBy
     });
 
     return this.paginate(data);
+  }
+
+  static async getByDecade(
+    decadeStart: number,
+    { page = 1, sortBy = 'popularity.desc' }: DiscoverPagination = {}
+  ) {
+    const decadeEnd = decadeStart + 9;
+    const data = await this.fetch<TMDBListResponse<TMDBMovieListItem>>(
+      '/discover/movie',
+      {
+        'primary_release_date.gte': `${decadeStart}-01-01`,
+        'primary_release_date.lte': `${decadeEnd}-12-31`,
+        sort_by: sortBy,
+        page
+      }
+    );
+
+    return this.paginate(data);
+  }
+
+  static async getPopularPeople({ page = 1 }: Pagination = {}) {
+    const data = await this.fetch<TMDBListResponse<TMDBPerson>>('/person/popular', {
+      page
+    });
+
+    return this.paginate(data);
+  }
+
+  static async getByPerson(
+    personId: number,
+    {
+      page = 1,
+      sortBy = 'popularity.desc',
+      originCountry
+    }: DiscoverPagination = {}
+  ) {
+    const data = await this.fetch<TMDBListResponse<TMDBMovieListItem>>('/discover/movie', {
+      with_cast: personId,
+      sort_by: sortBy,
+      with_origin_country: originCountry,
+      page
+    });
+
+    return this.paginate(data);
+  }
+
+  static async getPerson(personId: number): Promise<TMDBPerson> {
+    return this.fetch<TMDBPerson>(`/person/${personId}`);
   }
 
   // ─────────────────────────────────────────────
@@ -259,6 +368,13 @@ private static sortByPopularity<T extends { popularity?: number }>(
   );
 }
 
+private static filterLowPopularity<T extends { popularity?: number }>(
+  results: T[],
+  minPopularity = this.MIN_SEARCH_POPULARITY
+) {
+  return results.filter((item) => (item.popularity ?? 0) >= minPopularity);
+}
+
 static async search(
   type: SearchType,
   {
@@ -292,9 +408,11 @@ static async search(
     params
   );
 
+  const filteredResults = this.filterLowPopularity(data.results);
+
   return this.paginate({
     ...data,
-    results: this.sortByPopularity(data.results)
+    results: this.sortByPopularity(filteredResults)
   });
 }
 

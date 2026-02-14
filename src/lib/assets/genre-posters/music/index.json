@@ -1,0 +1,38 @@
+[
+  {
+    "rank": 1,
+    "id": 803796,
+    "title": "KPop Demon Hunters",
+    "poster_path": "/zT7Lhw3BhJbMkRqm9Zlx2YGMsY0.jpg",
+    "backdrop_path": "/w3Bi0wygeFQctn6AqFTwhGNXRwL.jpg",
+    "popularity": 43.4035,
+    "file": "01-kpop-demon-hunters-803796.jpg"
+  },
+  {
+    "rank": 2,
+    "id": 1548113,
+    "title": "The Muppet Show",
+    "poster_path": "/tcwar1rL0neoLvnklL7DzYw7sN8.jpg",
+    "backdrop_path": "/knn3OIa9T4yeLjkmeQgJ8JLwdG0.jpg",
+    "popularity": 31.8253,
+    "file": "02-the-muppet-show-1548113.jpg"
+  },
+  {
+    "rank": 3,
+    "id": 354912,
+    "title": "Coco",
+    "poster_path": "/6Ryitt95xrO8KXuqRGm1fUuNwqF.jpg",
+    "backdrop_path": "/g7CHF8gTLGooTbP4GznIGwaqAGL.jpg",
+    "popularity": 21.0935,
+    "file": "03-coco-354912.jpg"
+  },
+  {
+    "rank": 4,
+    "id": 244786,
+    "title": "Whiplash",
+    "poster_path": "/7fn624j5lj3xTme2SgiLCeuedmO.jpg",
+    "backdrop_path": "/1kuYEvLkX2nTkbfzN6X0w0xQFQU.jpg",
+    "popularity": 16.7765,
+    "file": "04-whiplash-244786.jpg"
+  }
+]

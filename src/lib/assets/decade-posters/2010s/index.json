@@ -1,0 +1,38 @@
+[
+  {
+    "rank": 1,
+    "id": 24428,
+    "title": "The Avengers",
+    "poster_path": "/RYMX2wcKCBAr24UyPD7xwmjaTn.jpg",
+    "backdrop_path": "/9BBTo63ANSmhC4e6r62OJFuK2GL.jpg",
+    "popularity": 59.2807,
+    "file": "01-the-avengers-24428.jpg"
+  },
+  {
+    "rank": 2,
+    "id": 157336,
+    "title": "Interstellar",
+    "poster_path": "/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",
+    "backdrop_path": "/5XNQBqnBwPA9yT0jZ0p3s8bbLh0.jpg",
+    "popularity": 44.5641,
+    "file": "02-interstellar-157336.jpg"
+  },
+  {
+    "rank": 3,
+    "id": 269149,
+    "title": "Zootopia",
+    "poster_path": "/hlK0e0wAQ3VLuJcsfIYPvb4JVud.jpg",
+    "backdrop_path": "/9tOkjBEiiGcaClgJFtwocStZvIT.jpg",
+    "popularity": 36.5871,
+    "file": "03-zootopia-269149.jpg"
+  },
+  {
+    "rank": 4,
+    "id": 299536,
+    "title": "Avengers: Infinity War",
+    "poster_path": "/7WsyChQLEftFiDOVTGkv3hFpyyt.jpg",
+    "backdrop_path": "/mDfJG3LC3Dqb67AZ52x3Z0jU0uB.jpg",
+    "popularity": 35.4315,
+    "file": "04-avengers-infinity-war-299536.jpg"
+  }
+]

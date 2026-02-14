@@ -1,0 +1,38 @@
+[
+  {
+    "rank": 1,
+    "id": 1084242,
+    "title": "Zootopia 2",
+    "poster_path": "/oJ7g2CifqpStmoYQyaLQgEU32qO.jpg",
+    "backdrop_path": "/5h2EsPKNDdB3MAtOk9MB9Ycg9Rz.jpg",
+    "popularity": 206.7752,
+    "file": "01-zootopia-2-1084242.jpg"
+  },
+  {
+    "rank": 2,
+    "id": 1167307,
+    "title": "David",
+    "poster_path": "/bESlrLOrsQ9gKzaGQGHXKOyIUtX.jpg",
+    "backdrop_path": "/oN4TQ1TxchynXlFiXFBL3NHLT54.jpg",
+    "popularity": 85.0013,
+    "file": "02-david-1167307.jpg"
+  },
+  {
+    "rank": 3,
+    "id": 1311031,
+    "title": "Demon Slayer: Kimetsu no Yaiba Infinity Castle",
+    "poster_path": "/fWVSwgjpT2D78VUh6X8UBd2rorW.jpg",
+    "backdrop_path": "/lNYympQM5O6QSInusbyG9eJDIe4.jpg",
+    "popularity": 77.4485,
+    "file": "03-demon-slayer-kimetsu-no-yaiba-infinity-castle-1311031.jpg"
+  },
+  {
+    "rank": 4,
+    "id": 1297842,
+    "title": "GOAT",
+    "poster_path": "/wfuqMlaExcoYiUEvKfVpUTt1v4u.jpg",
+    "backdrop_path": "/4lo5yNZrMLPKBh47t2CoZkbAUur.jpg",
+    "popularity": 71.0079,
+    "file": "04-goat-1297842.jpg"
+  }
+]

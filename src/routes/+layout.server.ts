@@ -1,6 +1,7 @@
 import type { LayoutServerLoad } from './$types';
 import { Profile } from '$lib/server/profile';
 import { auth } from '$lib/server/auth';
+import { GenreRepo } from '$lib/server/repos/genre.repo';
 
 export const load: LayoutServerLoad = async ({ request }) => {
   const session = await auth.api.getSession({
@@ -20,13 +21,16 @@ export const load: LayoutServerLoad = async ({ request }) => {
       profile.watchNext.list(),
       profile.reviews.list()
     ]);
+
+    const genres = await GenreRepo.list();
   
     return {
       session,
       user,
       watched,
       watchNext,
-      reviews
+      reviews,
+      genres
     };
 
 };

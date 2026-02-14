@@ -1,0 +1,38 @@
+[
+  {
+    "rank": 1,
+    "id": 83533,
+    "title": "Avatar: Fire and Ash",
+    "poster_path": "/tzCsmggqZc7fOmkAXZXXvsdxOsq.jpg",
+    "backdrop_path": "/sdZSjtGUTSN8B3al5o0f2WoQfQQ.jpg",
+    "popularity": 133.7562,
+    "file": "01-avatar-fire-and-ash-83533.jpg"
+  },
+  {
+    "rank": 2,
+    "id": 1043197,
+    "title": "Dust Bunny",
+    "poster_path": "/vobigFZFvbYPf6ElYJu07P9rH8C.jpg",
+    "backdrop_path": "/AecGG1XVCmkk7fT10ko3FC0dLIP.jpg",
+    "popularity": 84.3189,
+    "file": "02-dust-bunny-1043197.jpg"
+  },
+  {
+    "rank": 3,
+    "id": 1311031,
+    "title": "Demon Slayer: Kimetsu no Yaiba Infinity Castle",
+    "poster_path": "/fWVSwgjpT2D78VUh6X8UBd2rorW.jpg",
+    "backdrop_path": "/lNYympQM5O6QSInusbyG9eJDIe4.jpg",
+    "popularity": 77.4485,
+    "file": "03-demon-slayer-kimetsu-no-yaiba-infinity-castle-1311031.jpg"
+  },
+  {
+    "rank": 4,
+    "id": 991494,
+    "title": "The SpongeBob Movie: Search for SquarePants",
+    "poster_path": "/pDWYW9v8fmJdA7N0I1MOdQA3ETq.jpg",
+    "backdrop_path": "/kVSUUWiXoNwq2wVCZ4Mcqkniqvr.jpg",
+    "popularity": 63.0515,
+    "file": "04-the-spongebob-movie-search-for-squarepants-991494.jpg"
+  }
+]

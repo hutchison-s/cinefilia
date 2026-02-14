@@ -1,0 +1,38 @@
+[
+  {
+    "rank": 1,
+    "id": 1084242,
+    "title": "Zootopia 2",
+    "poster_path": "/oJ7g2CifqpStmoYQyaLQgEU32qO.jpg",
+    "backdrop_path": "/7nfpkR9XsQ1lBNCXSSHxGV7Dkxe.jpg",
+    "popularity": 206.7752,
+    "file": "01-zootopia-2-1084242.jpg"
+  },
+  {
+    "rank": 2,
+    "id": 1167307,
+    "title": "David",
+    "poster_path": "/bESlrLOrsQ9gKzaGQGHXKOyIUtX.jpg",
+    "backdrop_path": "/oN4TQ1TxchynXlFiXFBL3NHLT54.jpg",
+    "popularity": 85.0013,
+    "file": "02-david-1167307.jpg"
+  },
+  {
+    "rank": 3,
+    "id": 1297842,
+    "title": "GOAT",
+    "poster_path": "/wfuqMlaExcoYiUEvKfVpUTt1v4u.jpg",
+    "backdrop_path": "/4lo5yNZrMLPKBh47t2CoZkbAUur.jpg",
+    "popularity": 71.0079,
+    "file": "03-goat-1297842.jpg"
+  },
+  {
+    "rank": 4,
+    "id": 991494,
+    "title": "The SpongeBob Movie: Search for SquarePants",
+    "poster_path": "/pDWYW9v8fmJdA7N0I1MOdQA3ETq.jpg",
+    "backdrop_path": "/gbjK8p5S1aLXWCwOoXqr9aWZvqG.jpg",
+    "popularity": 63.0515,
+    "file": "04-the-spongebob-movie-search-for-squarepants-991494.jpg"
+  }
+]

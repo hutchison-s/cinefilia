@@ -29,6 +29,8 @@
 		{/if}
 		<Menu links={[
 			{label: "Home", href: "/"}, 
+			{label: "Explore", href: "/explore"}, 
+			{label: "Profile", href: "/profile"},
 			{label: "Watched", href: "/watched"}, 
 			{label: "Watch Next", href: "/watch-next"}, 
 			{label: "About", href: "/about"},

@@ -32,6 +32,7 @@ export const watched = pgTable(
     title: text('title').notNull(),
     posterPath: text('poster_path'),
     releaseYear: integer('release_year'),
+    genreId: integer('genre_id'),
 
     // ⭐ Rating: 0.0 – 5.0 (half stars allowed)
     rating: numeric('rating', { precision: 2, scale: 1 }),
@@ -122,6 +123,28 @@ export const review = pgTable(
       table.mediaId,
       table.mediaType
     )
+  ]
+);
+
+/* ─────────────────────────────────────────────
+   GENRE
+   Cached TMDB genres
+───────────────────────────────────────────── */
+
+export const genre = pgTable(
+  'genre',
+  {
+    id: integer('id').primaryKey(), // TMDB genre id
+    name: text('name').notNull(),
+    backdropPath: text('backdrop_path'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull()
+  },
+  (table) => [
+    uniqueIndex('genre_name_unique').on(table.name)
   ]
 );
 

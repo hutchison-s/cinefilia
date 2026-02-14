@@ -1,0 +1,38 @@
+[
+  {
+    "rank": 1,
+    "id": 840464,
+    "title": "Greenland 2: Migration",
+    "poster_path": "/z2tqCJLsw6uEJ8nJV8BsQXGa3dr.jpg",
+    "backdrop_path": "/tyjXlexbNZQ0ZT1KEJslQtBirqc.jpg",
+    "popularity": 354.4497,
+    "file": "01-greenland-2-migration-840464.jpg"
+  },
+  {
+    "rank": 2,
+    "id": 1242898,
+    "title": "Predator: Badlands",
+    "poster_path": "/pHpq9yNUIo6aDoCXEBzjSolywgz.jpg",
+    "backdrop_path": "/82lM4GJ9uuNvNDOEpxFy77uv4Ak.jpg",
+    "popularity": 159.0999,
+    "file": "02-predator-badlands-1242898.jpg"
+  },
+  {
+    "rank": 3,
+    "id": 83533,
+    "title": "Avatar: Fire and Ash",
+    "poster_path": "/tzCsmggqZc7fOmkAXZXXvsdxOsq.jpg",
+    "backdrop_path": "/sdZSjtGUTSN8B3al5o0f2WoQfQQ.jpg",
+    "popularity": 133.7562,
+    "file": "03-avatar-fire-and-ash-83533.jpg"
+  },
+  {
+    "rank": 4,
+    "id": 755898,
+    "title": "War of the Worlds",
+    "poster_path": "/yvirUYrva23IudARHn3mMGVxWqM.jpg",
+    "backdrop_path": "/iZLqwEwUViJdSkGVjePGhxYzbDb.jpg",
+    "popularity": 110.9533,
+    "file": "04-war-of-the-worlds-755898.jpg"
+  }
+]

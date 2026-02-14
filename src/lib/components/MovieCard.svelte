@@ -37,7 +37,7 @@
 
   <!-- Content -->
   <div class="flex flex-col gap-1 flex-1 z-10">
-      <h3 class="text-2xl text-left w-full text-white font-semibold leading-tight">
+      <h3 class="text-2xl text-left w-full text-white leading-tight">
         {props.title}
       </h3>
       <div class="flex gap-4 items-center">

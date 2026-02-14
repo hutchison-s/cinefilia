@@ -1,0 +1,38 @@
+[
+  {
+    "rank": 1,
+    "id": 1316092,
+    "title": "“Wuthering Heights”",
+    "poster_path": "/ywRO5dyE8RyyXJd6cvd69jLZeic.jpg",
+    "backdrop_path": "/sYM02XfZhqvlixmRkDcseQ6Xllk.jpg",
+    "popularity": 111.6259,
+    "file": "01-wuthering-heights-1316092.jpg"
+  },
+  {
+    "rank": 2,
+    "id": 1271895,
+    "title": "96 Minutes",
+    "poster_path": "/gWKZ1iLhukvLoh8XY2N4tMvRQ2M.jpg",
+    "backdrop_path": "/lAtuFCx6cYkNBmTMSNnLE0qlCLx.jpg",
+    "popularity": 105.4392,
+    "file": "02-96-minutes-1271895.jpg"
+  },
+  {
+    "rank": 3,
+    "id": 1317672,
+    "title": "Love Me Love Me",
+    "poster_path": "/jfwHKRHRE2X4NTexdzblaioHH51.jpg",
+    "backdrop_path": "/o0jRpVznKXuLvoXQX9UTKVtGjxK.jpg",
+    "popularity": 102.2166,
+    "file": "03-love-me-love-me-1317672.jpg"
+  },
+  {
+    "rank": 4,
+    "id": 858024,
+    "title": "Hamnet",
+    "poster_path": "/vbeyOZm2bvBXcbgPD3v6o94epPX.jpg",
+    "backdrop_path": "/73BClq9FOcrWrutnpiqhCNEWEwJ.jpg",
+    "popularity": 84.2238,
+    "file": "04-hamnet-858024.jpg"
+  }
+]

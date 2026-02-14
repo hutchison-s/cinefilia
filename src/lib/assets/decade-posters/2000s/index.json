@@ -1,0 +1,38 @@
+[
+  {
+    "rank": 1,
+    "id": 19995,
+    "title": "Avatar",
+    "poster_path": "/gKY6q7SjCkAU6FqvqWybDYgUKIF.jpg",
+    "backdrop_path": "/vL5LR6WdxWPjLPFRLe133jXWsh5.jpg",
+    "popularity": 64.6544,
+    "file": "01-avatar-19995.jpg"
+  },
+  {
+    "rank": 2,
+    "id": 22949,
+    "title": "Old Dogs",
+    "poster_path": "/u056hk3at4ukf9DWASVjogXyZfn.jpg",
+    "backdrop_path": "/EWqsvSabOaPW6BUQlb8O868mKw.jpg",
+    "popularity": 45.709,
+    "file": "02-old-dogs-22949.jpg"
+  },
+  {
+    "rank": 3,
+    "id": 7451,
+    "title": "xXx",
+    "poster_path": "/xeEw3eLeSFmJgXZzmF2Efww0q3s.jpg",
+    "backdrop_path": "/2OHa6ukEq3Hce7Pc2kvu8wkmMFY.jpg",
+    "popularity": 45.3176,
+    "file": "03-xxx-7451.jpg"
+  },
+  {
+    "rank": 4,
+    "id": 155,
+    "title": "The Dark Knight",
+    "poster_path": "/qJ2tW6WMUDux911r6m7haRef0WH.jpg",
+    "backdrop_path": "/dqK9Hag1054tghRQSqLSfrkvQnA.jpg",
+    "popularity": 31.5574,
+    "file": "04-the-dark-knight-155.jpg"
+  }
+]

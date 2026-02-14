@@ -1,15 +1,14 @@
 <script lang="ts">
 	import LandingPage from '$lib/components/LandingPage.svelte';
-	import StarDisplay from '$lib/components/StarDisplay.svelte';
-	import { ArrowRight } from 'lucide-svelte';
+	import HorizontalMovieScroll from '$lib/components/HorizontalMovieScroll.svelte';
+    import HorizontalScrollContainer from '$lib/components/HorizontalScrollContainer.svelte';
     
     let { data } = $props()
 
-    const createdAtSort = (a: {createdAt: Date}, b: {createdAt: Date}) => {
+    const createdAtSort = (a: {createdAt: Date}, b: {createdAt: Date}, dir: 'asc' | 'desc' = 'desc') => {
+        if (dir == 'asc') return a.createdAt.getTime() - b.createdAt.getTime()
         return b.createdAt.getTime() - a.createdAt.getTime()
     }
-
-    let watchedSlice = $derived(data.watched?.sort(createdAtSort).slice(0, 8))
 
 </script>
 
@@ -21,51 +20,54 @@
             Watch Next
         </h3>
     </a>
-    <div class="p-2 py-6 w-full overflow-y-hidden overflow-x-auto">
-            <div class="flex space-x-2 snap-x snap-x-mandatory w-fit">
-                {#each data.watchNext?.slice(0,8) as item}
-                    <a href={`/movie/${item.mediaId}`} class="snap-start flex flex-col w-36 items-center gap-2">
-                    <img
-                        src={`https://image.tmdb.org/t/p/w500${item.posterPath}`}
-                        alt={`Poster of ${item.title}`}
-                        class="w-32 h-auto rounded-md z-10"
-                        />
-                        <span class="text-gray-300 text-sm text-center">{item.title}</span>
-                    </a>
-                {/each}
-                {#if data.watchNext && data.watchNext.length > 8}
-                <a href="/watch-next" class="snap-start flex flex-col w-36 items-center gap-2 justify-center border-2 border-dashed border-gray-600 rounded-md text-gray-400">
-                    <span class="text-sm text-center text-primary">View All</span>
-                </a>
-                {/if}
-            </div>
-        </div>
+    <HorizontalMovieScroll 
+        movies={data.watchNext?.sort((a,b)=>createdAtSort(a,b,'asc'))} 
+        viewMoreLink="/watch-next" 
+        maxDisplay={8} 
+        showArrowOnViewAll={true}
+        viewAllTextClass="text-2xl text-center"
+    />
     <a href="/watched">
-        <h3 class="w-full border-y border-primary bg-gradient-to-br via-transparent to-primary/50 text-center font-thin uppercase text-white text-xl font-semibold py-2 mb-2 mt-6">
+        <h3 class="w-full border-y border-primary bg-gradient-to-br via-transparent to-primary/50 text-center font-thin uppercase text-white text-xl font-semibold py-2 mb-2 mt-2">
             Watched
         </h3>
     </a>
-    <div class="p-2 py-6 w-full overflow-y-hidden overflow-x-auto">
-            <div class="flex space-x-2 snap-x snap-proximity w-fit">
-                {#each watchedSlice as item}
-                    <a href={`/movie/${item.mediaId}`} class="snap-start flex flex-col w-36 items-center gap-2">
-                    <img
-                        src={`https://image.tmdb.org/t/p/w500${item.posterPath}`}
-                        alt={`Poster of ${item.title}`}
-                        class="w-32 h-auto rounded-md z-10"
-                        />
-                        <StarDisplay rating={Number(item.rating || 0)} size="sm" />
-                        <span class="text-gray-300 text-sm text-center">{item.title}</span>
-                    </a>
-                {/each}
-                {#if data.watched && data.watched.length > 8}
-                <a href="/watched" class="snap-start flex flex-col w-36 items-center gap-2 justify-center border-2 border-dashed border-gray-600 bg-black/25 rounded-md text-gray-400">
-                    <span class="text-2xl text-center whitespace-wrap">View All</span>
-                    <ArrowRight />
-                </a>
-                {/if}
+    <HorizontalMovieScroll
+        movies={data.watched?.sort(createdAtSort)}
+        viewMoreLink="/watched"
+        maxDisplay={8}
+        showRatings={true}
+        showArrowOnViewAll={true}
+        viewAllTextClass="text-2xl text-center"
+    />
+        <h3 class="text-center border-y border-primary bg-gradient-to-br via-transparent to-primary/50 font-thin uppercase text-white text-xl font-semibold py-2 mb-2 mt-2">
+            In Theaters
+        </h3>
+    <HorizontalMovieScroll 
+        movies={data.inTheaters} 
+        viewMoreLink="/explore" 
+        maxDisplay={30}
+    />
+    <a href="/explore">
+        <h3 class="text-center border-y border-primary bg-gradient-to-br via-transparent to-primary/50 font-thin uppercase text-white text-xl font-semibold py-2 mb-2 mt-2">
+            Explore Movies
+        </h3>
+    </a>
+    <HorizontalScrollContainer>
+        <a href="/explore/genre" class="snap-start w-36 flex flex-col items-center gap-2">
+            <div class="w-32 h-48 rounded-md border border-slate-700 bg-gradient-to-br from-slate-900 to-slate-700 flex items-end p-3">
+                <span class="text-white text-lg font-thin uppercase">Genre</span>
             </div>
-        </div>
+        </a>
+        <a href="/explore/decade" class="snap-start w-36 flex flex-col items-center gap-2">
+            <div class="w-32 h-48 rounded-md border border-slate-700 bg-gradient-to-br from-slate-900 to-slate-700 flex items-end p-3">
+                <span class="text-white text-lg font-thin uppercase">Decade</span>
+            </div>
+        </a>
+        <a href="/explore/actor" class="snap-start w-36 flex flex-col items-center gap-2">
+            <div class="w-32 h-48 rounded-md border border-slate-700 bg-gradient-to-br from-slate-900 to-slate-700 flex items-end p-3">
+                <span class="text-white text-lg font-thin uppercase">Actor</span>
+            </div>
+        </a>
+    </HorizontalScrollContainer>
 {/if}
-
-

@@ -69,7 +69,7 @@
   <!-- Content -->
   <div class="flex flex-col justify-between flex-1 z-10">
     <div>
-      <h3 class="text-xl text-white text-left font-semibold leading-tight">
+      <h3 class="text-xl text-white text-left leading-tight">
         {title}
       </h3>
       {#if releaseYear}

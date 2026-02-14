@@ -1,0 +1,38 @@
+[
+  {
+    "rank": 1,
+    "id": 1168190,
+    "title": "The Wrecking Crew",
+    "poster_path": "/gbVwHl4YPSq6BcC92TQpe7qUTh6.jpg",
+    "backdrop_path": "/cz4vLJrmaV1zJlRYbxqtvLzeLWB.jpg",
+    "popularity": 242.0676,
+    "file": "01-the-wrecking-crew-1168190.jpg"
+  },
+  {
+    "rank": 2,
+    "id": 1084242,
+    "title": "Zootopia 2",
+    "poster_path": "/oJ7g2CifqpStmoYQyaLQgEU32qO.jpg",
+    "backdrop_path": "/5h2EsPKNDdB3MAtOk9MB9Ycg9Rz.jpg",
+    "popularity": 206.7752,
+    "file": "02-zootopia-2-1084242.jpg"
+  },
+  {
+    "rank": 3,
+    "id": 1234731,
+    "title": "Anaconda",
+    "poster_path": "/qxMv3HwAB3XPuwNLMhVRg795Ktp.jpg",
+    "backdrop_path": "/swxhEJsAWms6X1fDZ4HdbvYBSf9.jpg",
+    "popularity": 86.4835,
+    "file": "03-anaconda-1234731.jpg"
+  },
+  {
+    "rank": 4,
+    "id": 1297842,
+    "title": "GOAT",
+    "poster_path": "/wfuqMlaExcoYiUEvKfVpUTt1v4u.jpg",
+    "backdrop_path": "/4lo5yNZrMLPKBh47t2CoZkbAUur.jpg",
+    "popularity": 71.0079,
+    "file": "04-goat-1297842.jpg"
+  }
+]

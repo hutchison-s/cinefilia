@@ -1,0 +1,38 @@
+[
+  {
+    "rank": 1,
+    "id": 62,
+    "title": "2001: A Space Odyssey",
+    "poster_path": "/ve72VxNqjGM69Uky4WTo2bK6rfq.jpg",
+    "backdrop_path": "/w5IDXtifKntw0ajv2co7jFlTQDM.jpg",
+    "popularity": 15.3556,
+    "file": "01-2001-a-space-odyssey-62.jpg"
+  },
+  {
+    "rank": 2,
+    "id": 429,
+    "title": "The Good, the Bad and the Ugly",
+    "poster_path": "/bX2xnavhMYjWDoZp1VM6VnU1xwe.jpg",
+    "backdrop_path": "/Adrip2Jqzw56KeuV2nAxucKMNXA.jpg",
+    "popularity": 11.9447,
+    "file": "02-the-good-the-bad-and-the-ugly-429.jpg"
+  },
+  {
+    "rank": 3,
+    "id": 539,
+    "title": "Psycho",
+    "poster_path": "/yz4QVqPx3h1hD1DfqqQkCq3rmxW.jpg",
+    "backdrop_path": "/vzXQEAmXIEWAtPCgB81bAS6EJCy.jpg",
+    "popularity": 11.9945,
+    "file": "03-psycho-539.jpg"
+  },
+  {
+    "rank": 4,
+    "id": 871,
+    "title": "Planet of the Apes",
+    "poster_path": "/2r9iKnlSYEk4daQadsXfcjHfIjQ.jpg",
+    "backdrop_path": "/gmJOXle5QeOOVFEYOVBOkmIJUWV.jpg",
+    "popularity": 11.0338,
+    "file": "04-planet-of-the-apes-871.jpg"
+  }
+]

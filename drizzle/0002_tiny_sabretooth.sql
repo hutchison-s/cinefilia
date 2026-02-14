@@ -1,0 +1,1 @@
+ALTER TABLE "watched" ADD COLUMN "genre_id" integer;
