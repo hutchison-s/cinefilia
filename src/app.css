@@ -33,4 +33,8 @@
   background-image: var(--gradient-secondary-primary);
 }
 
+body {
+    background-color: #000000;
+}
+
 @tailwind utilities;
