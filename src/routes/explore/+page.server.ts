@@ -3,25 +3,34 @@ import { EXPLORE_DECADES, buildExploreSpecificSlug } from '$lib/utils/explore';
 import type { PageServerLoad } from './$types';
 import { GenreRepo } from '$lib/server/repos/genre.repo';
 
-const genreGridModules = import.meta.glob(
-  '$lib/assets/genre-posters/*/*.jpg',
-  { eager: true, import: 'default' }
-) as Record<string, string>;
-
-const genreGridPathsByFolder = Object.values(genreGridModules).reduce<Record<string, string[]>>(
-  (acc, url) => {
-    const folder = url.match(/\/genre-posters\/([^/]+)\//)?.[1];
+function groupModuleUrlsByFolder(
+  modules: Record<string, string>,
+  folderRegex: RegExp
+): Record<string, string[]> {
+  const grouped = Object.entries(modules).reduce<Record<string, string[]>>((acc, [modulePath, url]) => {
+    const folder = modulePath.match(folderRegex)?.[1];
     if (!folder) return acc;
     if (!acc[folder]) acc[folder] = [];
     acc[folder].push(url);
     return acc;
-  },
-  {}
-);
+  }, {});
 
-for (const folder of Object.keys(genreGridPathsByFolder)) {
-  genreGridPathsByFolder[folder].sort();
+  for (const folder of Object.keys(grouped)) {
+    grouped[folder].sort();
+  }
+
+  return grouped;
 }
+
+const genreGridModules = import.meta.glob('$lib/assets/genre-posters/*/*.jpg', {
+  eager: true,
+  import: 'default'
+}) as Record<string, string>;
+
+const genreGridPathsByFolder = groupModuleUrlsByFolder(
+  genreGridModules,
+  /\/genre-posters\/([^/]+)\//
+);
 
 function getGenreGridPaths(name: string) {
   const folder = name.toLowerCase().replace(/[^a-z]/g, '');
@@ -33,25 +42,15 @@ function getGenreGridPaths(name: string) {
   return [];
 }
 
-const decadePosterModules = import.meta.glob(
-  '$lib/assets/decade-posters/*/*.jpg',
-  { eager: true, import: 'default' }
-) as Record<string, string>;
+const decadePosterModules = import.meta.glob('$lib/assets/decade-posters/*/*.jpg', {
+  eager: true,
+  import: 'default'
+}) as Record<string, string>;
 
-const decadePosterPathsByLabel = Object.values(decadePosterModules).reduce<Record<string, string[]>>(
-  (acc, url) => {
-    const decadeLabel = url.match(/\/decade-posters\/([^/]+)\//)?.[1];
-    if (!decadeLabel) return acc;
-    if (!acc[decadeLabel]) acc[decadeLabel] = [];
-    acc[decadeLabel].push(url);
-    return acc;
-  },
-  {}
+const decadePosterPathsByLabel = groupModuleUrlsByFolder(
+  decadePosterModules,
+  /\/decade-posters\/([^/]+)\//
 );
-
-for (const label of Object.keys(decadePosterPathsByLabel)) {
-  decadePosterPathsByLabel[label].sort();
-}
 
 export const load: PageServerLoad = async () => {
   const [genres, people] = await Promise.all([
@@ -59,7 +58,7 @@ export const load: PageServerLoad = async () => {
     TMDB.getPopularPeople({ page: 1 })
   ]);
 
-  const genreItems = genres.slice(0, 12).map((genre) => ({
+  const genreItems = genres.map((genre) => ({
     label: genre.name,
     href: `/explore/genre/${buildExploreSpecificSlug('genre', genre.id, genre.name)}`,
     imageGridPaths: getGenreGridPaths(genre.name)
@@ -99,7 +98,6 @@ export const load: PageServerLoad = async () => {
   );
   const actorItems = actorItemsRaw
     .filter((item) => item.imageGridPaths.length > 0)
-    .slice(0, 12);
 
   return {
     categories: [

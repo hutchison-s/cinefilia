@@ -7,7 +7,6 @@ export const load: PageServerLoad = async ({ params, parent }) => {
   const id = Number(params.id);
   const movie = await TMDB.getMovie(Number(id), [
     'credits',
-    'videos',
     'images',
     'recommendations'
   ].join(','));

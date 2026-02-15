@@ -2,14 +2,38 @@
 	import Button from '$lib/components/Button.svelte';
 	import BasicCard from '$lib/components/BasicCard.svelte';
 	import FormInput from '$lib/components/FormInput.svelte';
+	import { enhance } from '$app/forms';
+	import { goto } from '$app/navigation';
+	import type { SubmitFunction } from '@sveltejs/kit';
 
 	export let form;
 
 	let isNewUser = false;
+	const DESTINATION_KEY = 'post_login_destination';
 
 	function toggleForm() {
 		isNewUser = !isNewUser;
 	}
+
+	function isMovieDestination(value: string | null): value is string {
+		if (!value) return false;
+		return /^\/movie\/\d+$/.test(value);
+	}
+
+	const handleAuthSubmit: SubmitFunction = () => {
+		return async ({ result, update }) => {
+			if ((result.type === 'success' || result.type === 'redirect') && !isNewUser) {
+				const destination = sessionStorage.getItem(DESTINATION_KEY);
+				if (isMovieDestination(destination)) {
+					sessionStorage.removeItem(DESTINATION_KEY);
+					await goto(destination);
+					return;
+				}
+			}
+
+			await update();
+		};
+	};
 </script>
 
 <BasicCard title={isNewUser ? 'Sign Up' : 'Login'}
@@ -17,6 +41,7 @@
 	<form
 		method="POST"
 		action={isNewUser ? '?/signup' : '?/login'}
+		use:enhance={handleAuthSubmit}
 		class="flex flex-col gap-6"
 	>
 		<FormInput

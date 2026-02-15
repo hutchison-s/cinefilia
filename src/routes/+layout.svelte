@@ -12,12 +12,28 @@
   const searchModalClasses = 'fixed inset-0 bg-black/50 backdrop-blur-sm flex flex-col items-center justify-start py-40 z-50 transition-all';
 
   let isSearchOpen = $state(false);
+  const menuLinks = $derived(
+    data.user
+      ? [
+          { label: 'Home', href: '/' },
+          { label: 'Explore', href: '/explore' },
+          { label: 'Profile', href: '/profile' },
+          { label: 'Watched', href: '/watched' },
+          { label: 'Watch Next', href: '/watch-next' },
+          { label: 'About', href: '/about' },
+          { label: 'Logout', href: '/logout' }
+        ]
+      : [
+          { label: 'Home', href: '/' },
+          { label: 'About', href: '/about' },
+          { label: 'Login', href: '/login' }
+        ]
+  );
 
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 <div class="min-h-[100vh] flex flex-col">
-<!-- <img src={watermark} alt="Cinefilia" class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-10 aspect-square pointer-events-none select-none" /> -->
 <header class="fixed top-0 left-0 right-0 bg-black/75 backdrop-blur p-4 shadow-lg flex items-center justify-between z-1000">
 	<a href="/" class="flex items-center gap-1">
 		<img src={favicon} alt="Cinefilia" class="w-6 h-6" />
@@ -27,15 +43,7 @@
 		{#if $page.url.pathname !== '/'}
 			<BackButton />
 		{/if}
-		<Menu links={[
-			{label: "Home", href: "/"}, 
-			{label: "Explore", href: "/explore"}, 
-			{label: "Profile", href: "/profile"},
-			{label: "Watched", href: "/watched"}, 
-			{label: "Watch Next", href: "/watch-next"}, 
-			{label: "About", href: "/about"},
-			{label: "Logout", href: "/logout"}
-		]}/>
+		<Menu links={menuLinks}/>
 		<HeaderSearch onOpen={() => isSearchOpen = true} />
 	</div>
 

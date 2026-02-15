@@ -95,6 +95,23 @@ type SpokenLanguage = {
   name: string;
 };
 
+type ReleaseDate = {
+  certification: string;
+  iso_639_1: string;
+  note: string;
+  release_date: string;
+  type: number;
+};
+
+type ReleaseDatesByCountry = {
+  iso_3166_1: string;
+  release_dates: ReleaseDate[];
+};
+
+type ReleaseDatesResponse = {
+  results: ReleaseDatesByCountry[];
+};
+
 export type MovieDetails = {
   adult: boolean;
   backdrop_path: string | null;
@@ -133,6 +150,11 @@ export type MovieDetails = {
   video: boolean;
   vote_average: number;
   vote_count: number;
+  mpaaRating: string | null;
+};
+
+type MovieDetailsApiResponse = Omit<MovieDetails, 'mpaaRating'> & {
+  release_dates?: ReleaseDatesResponse;
 };
 
 
@@ -338,10 +360,35 @@ export class TMDB {
   // Movie details
   // ─────────────────────────────────────────────
 
+  private static extractMpaaRating(releaseDates?: ReleaseDatesResponse): string | null {
+    const usReleaseDates = releaseDates?.results.find(
+      (entry) => entry.iso_3166_1 === 'US'
+    )?.release_dates;
+
+    if (!usReleaseDates?.length) {
+      return null;
+    }
+
+    return usReleaseDates.find((entry) => entry.certification.trim())?.certification ?? null;
+  }
+
   static async getMovie(id: number, append?: string): Promise<MovieDetails> {
-    return this.fetch<MovieDetails>(`/movie/${id}`, {
-      append_to_response: append
+    const appendValues = new Set(
+      (append ?? '')
+        .split(',')
+        .map((value) => value.trim())
+        .filter(Boolean)
+    );
+    appendValues.add('release_dates');
+
+    const movie = await this.fetch<MovieDetailsApiResponse>(`/movie/${id}`, {
+      append_to_response: Array.from(appendValues).join(',')
     });
+
+    return {
+      ...movie,
+      mpaaRating: this.extractMpaaRating(movie.release_dates)
+    };
   }
 
   static async getCredits(id: number) {
