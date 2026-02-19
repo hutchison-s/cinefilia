@@ -1,34 +1,57 @@
 <script lang="ts">
 	import '../app.css';
 	import favicon from '$lib/assets/icon.png';
-	import type { LayoutData } from './$types';
 	import HeaderSearch from '$lib/components/HeaderSearch.svelte';
 	import SearchOverlay from '$lib/components/SearchOverlay.svelte';
 	import Menu from '$lib/components/Menu.svelte';
 	import BackButton from '$lib/components/BackButton.svelte';
 	import { page } from '$app/stores';
+	import { afterNavigate } from '$app/navigation';
+	import { onMount } from 'svelte';
 
   const { data, children } = $props();
-  const searchModalClasses = 'fixed inset-0 bg-black/50 backdrop-blur-sm flex flex-col items-center justify-start py-40 z-50 transition-all';
 
   let isSearchOpen = $state(false);
-  const menuLinks = $derived(
-    data.user
-      ? [
-          { label: 'Home', href: '/' },
-          { label: 'Explore', href: '/explore' },
-          { label: 'Profile', href: '/profile' },
-          { label: 'Watched', href: '/watched' },
-          { label: 'Watch Next', href: '/watch-next' },
-          { label: 'About', href: '/about' },
-          { label: 'Logout', href: '/logout' }
-        ]
-      : [
-          { label: 'Home', href: '/' },
-          { label: 'About', href: '/about' },
-          { label: 'Login', href: '/login' }
-        ]
-  );
+	let showBackButton = $state(false);
+	const HISTORY_FLAG_KEY = 'cinefilia_has_internal_history';
+	const menuLinks = $derived(
+		data.user
+		? [
+			{ label: 'Home', href: '/' },
+			{ label: 'Explore', href: '/explore' },
+			{ label: 'Profile', href: '/profile' },
+			{ label: 'Watched', href: '/watched' },
+			{ label: 'Watch Next', href: '/watch-next' },
+			{ label: 'About', href: '/about' },
+			{ label: 'Logout', href: '/logout' }
+			]
+		: [
+			{ label: 'Home', href: '/' },
+			{ label: 'About', href: '/about' },
+			{ label: 'Login', href: '/login' }
+			]
+	);
+
+	onMount(() => {
+		let cameFromSameOrigin = false;
+		if (document.referrer) {
+			try {
+				cameFromSameOrigin = new URL(document.referrer).origin === window.location.origin;
+			} catch {
+				cameFromSameOrigin = false;
+			}
+		}
+
+		const hasInternalHistory = sessionStorage.getItem(HISTORY_FLAG_KEY) === '1';
+		showBackButton = cameFromSameOrigin || hasInternalHistory;
+
+		return afterNavigate((navigation) => {
+			if (navigation.from && navigation.from.url.pathname !== navigation.to?.url.pathname) {
+				showBackButton = true;
+				sessionStorage.setItem(HISTORY_FLAG_KEY, '1');
+			}
+		});
+	});
 
 </script>
 
@@ -40,7 +63,7 @@
 		<span class="text-white font-bold text-lg">Cinefilia</span>
 	</a>
 	<div class="flex gap-2 items">
-		{#if $page.url.pathname !== '/'}
+		{#if $page.url.pathname !== '/' && showBackButton}
 			<BackButton />
 		{/if}
 		<Menu links={menuLinks}/>

@@ -2,6 +2,7 @@
 	import LandingPage from '$lib/components/LandingPage.svelte';
 	import HorizontalMovieScroll from '$lib/components/HorizontalMovieScroll.svelte';
     import HorizontalScrollContainer from '$lib/components/HorizontalScrollContainer.svelte';
+	import Button from '$lib/components/Button.svelte';
     
     let { data } = $props()
 
@@ -40,7 +41,7 @@
         showArrowOnViewAll={true}
         viewAllTextClass="text-2xl text-center"
     />
-        <h3 class="text-center border-y border-primary bg-gradient-to-br via-transparent to-primary/50 font-thin uppercase text-white text-xl font-semibold py-2 mb-2 mt-2">
+        <!-- <h3 class="text-center border-y border-primary bg-gradient-to-br via-transparent to-primary/50 font-thin uppercase text-white text-xl font-semibold py-2 mb-2 mt-2">
             In Theaters
         </h3>
     <HorizontalMovieScroll 
@@ -48,11 +49,9 @@
         viewMoreLink="/explore" 
         maxDisplay={30}
     />
-    <a href="/explore">
-        <h3 class="text-center border-y border-primary bg-gradient-to-br via-transparent to-primary/50 font-thin uppercase text-white text-xl font-semibold py-2 mb-2 mt-2">
-            Explore Movies
-        </h3>
-    </a>
+-->
+    <Button type='primary' btnClass="mx-auto px-4 block mt-6">Explore Movies</Button>
+<!--
     <HorizontalScrollContainer>
         <a href="/explore/genre" class="snap-start w-36 flex flex-col items-center gap-2">
             <div class="w-32 h-48 rounded-md border border-slate-700 bg-gradient-to-br from-slate-900 to-slate-700 flex items-end p-3">
@@ -69,5 +68,5 @@
                 <span class="text-white text-lg font-thin uppercase">Actor</span>
             </div>
         </a>
-    </HorizontalScrollContainer>
+    </HorizontalScrollContainer> -->
 {/if}
