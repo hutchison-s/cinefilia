@@ -5,6 +5,7 @@
 	import ReviewCard from "$lib/components/ReviewCard.svelte";
 	import { invalidateAll } from "$app/navigation";
     import { buildExploreSpecificSlug } from "$lib/utils/explore";
+	import Pill from "$lib/components/Pill.svelte";
 
     let {data} = $props();
 
@@ -120,8 +121,16 @@
 <div class="flex flex-col gap-6 h-full overflow-auto p-2 px-4 max-w-[600px] xl:mx-auto">
     <div class="flex flex-col gap-6 ">
         <div class="space-y-2">
-            <img src={`https://image.tmdb.org/t/p/w500${data.movie?.poster_path}`} alt={data.movie?.title} class="rounded-lg shadow-lg md:w-40" />
+            <div class="relative">
+            <button class="aspect-square rounded p-2.5 bg-black/40 text-white hover:bg-gradient-secondary transition-colors cursor-pointer flex items-center gap-2 absolute bottom-2 right-2" onclick={handleShare}><Share size="18"/></button>
+            <img src={`https://image.tmdb.org/t/p/w500${data.movie?.poster_path}`} alt={data.movie?.title} class="rounded-lg rounded md:w-40" />
+            </div>
             <h1 class="text-white text-3xl font-bold mt-4">{data.movie?.title}</h1>
+            <div class="flex items-center gap-1">
+                {#each data.movie.genres.slice(0,4) as g}
+                    <Pill label={g.name} theme='primary'/>
+                {/each}
+            </div>
             <div class="flex gap-3 w-full border-y border-primary py-2">
                 <p class="text-secondary text-4xl">{releaseYear}</p>
                 <div>
@@ -168,17 +177,7 @@
             }}
         />
         {/if}
-        <div class="grid grid-cols-3 gap-1">
-            {#each data.movie.genres as g}
-            <a 
-                href="/explore/?genre={encodeURIComponent(g.name.toLowerCase())}"
-                class="text-center text-sm bg-gradient-to-br from-slate-900 to-slate-700 hover:to-secondary transition-colors rounded border border-gray-600 grid place-items-center py-1 text-white"
-            >
-                {g.name}
-            </a>
-            {/each}
-        </div>
-                <Button type='primary' btnClass="mx-auto flex items-center gap-2" on:click={handleShare}>Share <Share size="18"/></Button>
+                
 
 
         {#if castSlice.length > 0}
