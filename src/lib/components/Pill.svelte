@@ -9,10 +9,10 @@
     }
     const props: PillProps = $props();
 
-    const baseClasses = `rounded-full px-2.5 py-0.5 text-xs font-light transition-colors saturation-75 disabled:opacity-50 disabled:saturation-50 ${props.onclick || props.href ? 'hover:brightness-110 cursor-pointer' : 'select-none'} `
+    const baseClasses = `rounded-full px-2.5 py-0.5 text-xs font-light backdrop-blur-sm transition-colors saturation-75 disabled:opacity-50 disabled:saturation-50 ${props.onclick || props.href ? 'hover:brightness-110 cursor-pointer' : 'select-none'} `
     const themeClasses: Record<themeType, {'basic': string, 'inverted': string}> = {
-        primary: {'basic': 'bg-primary/40 text-gray-400', 'inverted': 'bg-white/15 text-primary-600'},
-        secondary: {'basic': 'bg-secondary/30 text-gray-400', 'inverted': 'bg-white/15 text-secondary'},
+        primary: {'basic': 'bg-primary/25 text-gray-400', 'inverted': 'bg-white/15 text-primary-600'},
+        secondary: {'basic': 'bg-secondary/15 text-gray-400', 'inverted': 'bg-white/15 text-secondary'},
         danger: {'basic': 'bg-danger/25 text-gray-400', 'inverted': 'bg-white/15 text-danger'},
         monotone: {'basic': 'bg-gray-700/10 text-gray-400', 'inverted': 'bg-white/15 text-gray-700'},
     }

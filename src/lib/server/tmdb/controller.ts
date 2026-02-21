@@ -422,6 +422,51 @@ private static filterLowPopularity<T extends { popularity?: number }>(
   return results.filter((item) => (item.popularity ?? 0) >= minPopularity);
 }
 
+static async discover({
+  page = 1,
+  actorId,
+  genreIds,
+  selectedDecades,
+  sortBy = 'popularity.desc'
+}: {
+  page?: number;
+  actorId?: string;
+  genreIds?: string;
+  selectedDecades?: number[];
+  sortBy?: string;
+}) {
+
+  let startYear: number | undefined;
+  let endYear: number | undefined;
+
+  if (selectedDecades?.length) {
+    const min = Math.min(...selectedDecades);
+    const max = Math.max(...selectedDecades);
+    startYear = min;
+    endYear = max + 9;
+  }
+
+  const params = {
+    page,
+    sort_by: sortBy,
+    with_cast: actorId,
+    with_genres: genreIds,
+    'primary_release_date.gte': startYear
+      ? `${startYear}-01-01`
+      : undefined,
+    'primary_release_date.lte': endYear
+      ? `${endYear}-12-31`
+      : undefined
+  };
+
+  const data = await this.fetch<TMDBListResponse<TMDBMovieListItem>>(
+    '/discover/movie',
+    params
+  );
+
+  return this.paginate(data);
+}
+
 static async search(
   type: SearchType,
   {

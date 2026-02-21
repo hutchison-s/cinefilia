@@ -3,6 +3,7 @@
 	import HorizontalMovieScroll from '$lib/components/HorizontalMovieScroll.svelte';
     import HorizontalScrollContainer from '$lib/components/HorizontalScrollContainer.svelte';
 	import Button from '$lib/components/Button.svelte';
+	import { goto } from '$app/navigation';
     
     let { data } = $props()
 
@@ -50,7 +51,7 @@
         maxDisplay={30}
     />
 -->
-    <Button type='primary' btnClass="mx-auto px-4 block mt-6">Explore Movies</Button>
+    <Button type='primary' btnClass="mx-auto px-4 block mt-6" on:click={()=>goto('/explore')} >Explore Movies</Button>
 <!--
     <HorizontalScrollContainer>
         <a href="/explore/genre" class="snap-start w-36 flex flex-col items-center gap-2">
