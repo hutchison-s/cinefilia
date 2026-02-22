@@ -16,7 +16,7 @@ export const load: PageServerLoad = async ({ locals }) => {
       title: item.title,
       posterPath: item.posterPath || undefined,
       releaseYear: item.releaseYear || undefined,
-      rating: item.rating ? parseInt(item.rating) : undefined
+      rating: item.rating ? Number(item.rating) : undefined
     }))
   };
 };

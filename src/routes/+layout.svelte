@@ -3,11 +3,11 @@
 	import favicon from '$lib/assets/icon.png';
 	import HeaderSearch from '$lib/components/HeaderSearch.svelte';
 	import SearchOverlay from '$lib/components/SearchOverlay.svelte';
-	import Menu from '$lib/components/Menu.svelte';
 	import BackButton from '$lib/components/BackButton.svelte';
 	import { page } from '$app/stores';
 	import { afterNavigate } from '$app/navigation';
 	import { onMount } from 'svelte';
+	import Menu from '$lib/components/Menu.svelte';
 
   const { data, children } = $props();
 
@@ -18,10 +18,10 @@
 		data.user
 		? [
 			{ label: 'Home', href: '/' },
-			{ label: 'Explore', href: '/explore' },
-			{ label: 'Profile', href: '/profile' },
 			{ label: 'Watched', href: '/watched' },
 			{ label: 'Watch Next', href: '/watch-next' },
+			{ label: 'Explore', href: '/explore' },
+			{ label: 'Profile', href: '/profile' },
 			{ label: 'About', href: '/about' },
 			{ label: 'Logout', href: '/logout' }
 			]

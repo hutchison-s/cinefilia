@@ -33,7 +33,7 @@
     : null;
 </script>
 
-<BasicCard cardClass="relative flex gap-3 p-3" onClick={props.onClick}>
+<BasicCard cardClass={`relative flex gap-3 p-3 ${props.onClick !== undefined ? 'cursor-pointer hover:bg-white/10' : ''}`} onClick={props.onClick}>
   {#if backdrop_path}
     <!-- Backdrop layer -->
     <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-xl">

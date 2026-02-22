@@ -13,6 +13,12 @@ export const load: PageServerLoad = async ({ url }) => {
 
   const sortBy = sp.get('sort') ?? 'popularity.desc';
   const page = sp.has('page') ? Number(sp.get('page')) : 1;
+  let actorName: string | null = null;
+
+  if (actorId) {
+    const person = await TMDB.getPerson(Number(actorId));
+    actorName = person.name;
+  }
 
   const movies = await TMDB.discover({
     actorId,
@@ -22,5 +28,5 @@ export const load: PageServerLoad = async ({ url }) => {
     page
   });
 
-  return { movies };
+  return { movies, actorName };
 };

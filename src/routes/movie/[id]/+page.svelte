@@ -35,14 +35,19 @@
         const M = min ? min + ' min' + (min > 1 ? 's' : '') : ''
         return [H,M].filter(Boolean).join(' ')
     })
-    const handleShare = async ()=>{
-        navigator.share({
-                title: 'Movie Recommndation on Cinefilia',
-                text: `Add ${data.movie.title} to your Watch Next list!`,
-                url: `https://cinefilia-red.vercel.app/rec/${data.movie.id}`
-            }).catch(err => console.log(err))
-        
-    }
+    const handleShare = async () => {
+        const baseUrl = window.location.origin;
+
+        try {
+            await navigator.share({
+            title: 'Movie Recommendation on Cinefilia',
+            text: `Add ${data.movie.title} to your Watch Next list!`,
+            url: `${baseUrl}/rec/${data.movie.id}`
+            });
+        } catch (err) {
+            console.log(err);
+        }
+    };
 
     const handleAddToWatchNext = async () => {
         const response = await fetch(`?/addToWatchNext`, {
@@ -118,17 +123,17 @@
     };
 
 </script>
-<div class="flex flex-col gap-6 h-full overflow-auto p-2 px-4 max-w-[600px] xl:mx-auto">
-    <div class="flex flex-col gap-6 ">
-        <div class="space-y-2">
-            <div class="relative">
-            <button class="aspect-square rounded p-2.5 bg-black/40 text-white hover:bg-gradient-secondary transition-colors cursor-pointer flex items-center gap-2 absolute bottom-2 right-2" onclick={handleShare}><Share size="18"/></button>
-            <img src={`https://image.tmdb.org/t/p/w500${data.movie?.poster_path}`} alt={data.movie?.title} class="rounded-lg rounded md:w-40" />
+<div class="flex flex-col gap-6 h-full overflow-auto p-2 px-4 max-w-[600px] md:mx-auto">
+    <div class="flex flex-col gap-6">
+        <div class="space-y-2 md:grid md:grid-cols-[10rem_1fr] md:gap-x-4">
+            <div class="relative md:row-span-4">
+            <button class="aspect-square rounded p-2.5 bg-black/40 text-white hover:bg-gradient-secondary transition-colors cursor-pointer flex items-center gap-2 absolute bottom-2 right-2 md:right-auto md:left-2" onclick={handleShare}><Share size="18"/></button>
+            <img src={`https://image.tmdb.org/t/p/w500${data.movie?.poster_path}`} alt={data.movie?.title} class="rounded-lg rounded md:20" />
             </div>
             <h1 class="text-white text-3xl font-bold mt-4">{data.movie?.title}</h1>
             <div class="flex items-center gap-1">
                 {#each data.movie.genres.slice(0,4) as g}
-                    <Pill label={g.name} theme='primary'/>
+                    <Pill label={g.name} theme='primary' href={`/explore?genre=${g.id}`}/>
                 {/each}
             </div>
             <div class="flex gap-3 w-full border-y border-primary py-2">
@@ -187,7 +192,7 @@
                     <div class="flex gap-4 w-fit py-2">
                         {#each castSlice as actor}
                             <a
-                                href={`/explore/actor/${buildExploreSpecificSlug('actor', actor.id, actor.name)}`}
+                                href={`/explore?actor=${actor.id}`}
                                 class="w-24 shrink-0 flex flex-col items-center gap-2"
                             >
                                 {#if actor.profile_path}
