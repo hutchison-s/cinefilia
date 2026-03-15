@@ -45,11 +45,11 @@
           {@const key = `${genre}|${decade}`}
           {@const count = props.cells[key] ?? 0}
           <div
-            class="w-full aspect-[3/4] rounded border border-slate-800 flex items-center justify-center text-[10px] text-slate-100"
+            class="w-full aspect-square rounded border border-slate-800 flex items-center justify-center text-[10px] text-slate-100"
             style={`background-color: rgba(46, 162, 212, ${intensity(count, props.maxCount)});`}
             title={`${genre} / ${decade}: ${count}`}
           >
-            {count || ''}
+            <!-- {count || ''} -->
           </div>
         {/each}
       {/each}

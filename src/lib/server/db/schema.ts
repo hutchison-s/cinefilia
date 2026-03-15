@@ -32,7 +32,7 @@ export const watched = pgTable(
     title: text('title').notNull(),
     posterPath: text('poster_path'),
     releaseYear: integer('release_year'),
-    genreId: integer('genre_id'),
+    genreIds: integer('genre_ids').array(),
 
     // ⭐ Rating: 0.0 – 5.0 (half stars allowed)
     rating: numeric('rating', { precision: 2, scale: 1 }),

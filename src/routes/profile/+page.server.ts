@@ -1,5 +1,5 @@
 import { redirect } from '@sveltejs/kit';
-import { and, desc, eq, isNotNull, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, isNotNull, sql } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import { genre, watchNext, watched } from '$lib/server/db/schema';
@@ -33,14 +33,15 @@ export const load: PageServerLoad = async ({ locals }) => {
       .where(eq(watchNext.userId, userId)),
     db
       .select({
-        genreId: watched.genreId,
+        genreId: sql<number>`g.genre_id`,
         genreName: genre.name,
         count: sql<number>`count(*)::int`
       })
       .from(watched)
-      .leftJoin(genre, eq(watched.genreId, genre.id))
-      .where(and(eq(watched.userId, userId), isNotNull(watched.genreId)))
-      .groupBy(watched.genreId, genre.name)
+      .crossJoin(sql`unnest(${watched.genreIds}) as g(genre_id)`)
+      .leftJoin(genre, eq(sql`g.genre_id`, genre.id))
+      .where(eq(watched.userId, userId))
+      .groupBy(sql`g.genre_id`, genre.name)
       .orderBy(desc(sql`count(*)`)),
     db
       .select({
@@ -50,7 +51,7 @@ export const load: PageServerLoad = async ({ locals }) => {
       .from(watched)
       .where(and(eq(watched.userId, userId), isNotNull(watched.releaseYear)))
       .groupBy(sql`(floor(${watched.releaseYear} / 10.0) * 10)::int`)
-      .orderBy(desc(sql`(floor(${watched.releaseYear} / 10.0) * 10)::int`)),
+      .orderBy(asc(sql`(floor(${watched.releaseYear} / 10.0) * 10)::int`)),
     db
       .select({
         genreName: genre.name,
@@ -58,15 +59,19 @@ export const load: PageServerLoad = async ({ locals }) => {
         count: sql<number>`count(*)::int`
       })
       .from(watched)
-      .leftJoin(genre, eq(watched.genreId, genre.id))
+      .crossJoin(sql`unnest(${watched.genreIds}) as g(genre_id)`)
+      .leftJoin(genre, eq(sql`g.genre_id`, genre.id))
       .where(
         and(
           eq(watched.userId, userId),
-          isNotNull(watched.genreId),
           isNotNull(watched.releaseYear)
         )
       )
       .groupBy(genre.name, sql`(floor(${watched.releaseYear} / 10.0) * 10)::int`)
+      .orderBy(
+        desc(sql`(floor(${watched.releaseYear} / 10.0) * 10)::int`),
+        asc(genre.name)
+      )
   ]);
 
   const [user] = userRows;

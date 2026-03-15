@@ -1,13 +1,16 @@
 <script lang="ts">
+  import { deserialize } from '$app/forms';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
-  import MovieCard from '$lib/components/MovieCard.svelte';
   import { Funnel, ArrowDownUp } from 'lucide-svelte';
   import type { PageData } from './$types';
 	import Pill from '$lib/components/Pill.svelte';
 	import MovieCardWithActions from '$lib/components/MovieCardWithActions.svelte';
+  import InfiniteScrollTrigger from '$lib/components/InfiniteScrollTrigger.svelte';
+  import type { TMDBMovieListItem } from '$lib/server/tmdb/controller';
 
   const { data } = $props();
+  type ExploreMovies = PageData['movies'];
 
   /* ================= URL STATE ================= */
 
@@ -36,7 +39,11 @@
 
   let actorQuery = $state('');
   let actorResults = $state<{ id: number; name: string }[]>([]);
-  let timeout: ReturnType<typeof setTimeout> | null = null;
+  let actorSearchTimeout: ReturnType<typeof setTimeout> | null = null;
+  let visibleMovies = $state<TMDBMovieListItem[]>([]);
+  let nextPage = $state(2);
+  let totalPages = $state(1);
+  let isLoadingMore = $state(false);
 
   /* Sync draft when modal opens */
   $effect(() => {
@@ -107,9 +114,9 @@
   /* ================= ACTOR SEARCH ================= */
 
   function debounceSearch(q: string) {
-    if (timeout) clearTimeout(timeout);
+    if (actorSearchTimeout) clearTimeout(actorSearchTimeout);
 
-    timeout = setTimeout(async () => {
+    actorSearchTimeout = setTimeout(async () => {
       const res = await fetch('/api/search/actor', {
       method: 'POST',
       headers: {
@@ -215,7 +222,56 @@
     if (currentDecades.length === 1) return currentDecades[0]+'s'
     const sorted = [...currentDecades].sort()
     return `${sorted[0]}s - ${sorted[sorted.length - 1]}s`
-  })
+  });
+
+  const watchedIds = $derived(new Set((data.watched ?? []).map((m) => m.mediaId)));
+  const watchNextIds = $derived(new Set((data.watchNext ?? []).map((m) => m.mediaId)));
+  const hasMoreMovies = $derived(nextPage <= totalPages);
+
+  $effect(() => {
+    visibleMovies = data.movies.results;
+    nextPage = data.movies.page + 1;
+    totalPages = data.movies.total_pages;
+    isLoadingMore = false;
+  });
+
+  async function loadMoreMovies() {
+    if (isLoadingMore || !hasMoreMovies) {
+      return;
+    }
+
+    isLoadingMore = true;
+
+    try {
+      const formData = new FormData();
+      formData.set('nextPage', String(nextPage));
+
+      const res = await fetch(`${url.pathname}?/loadMore&${sp.toString()}`, {
+        method: 'POST',
+        body: formData
+      });
+
+      const result = deserialize(await res.text());
+
+      if (result.type !== 'success') {
+        throw new Error('Failed to load more movies');
+      }
+
+      const movies = (result.data as { movies?: ExploreMovies } | undefined)?.movies;
+
+      if (!movies) {
+        return;
+      }
+
+      visibleMovies = [...visibleMovies, ...movies.results];
+      totalPages = movies.total_pages;
+      nextPage = movies.page + 1;
+    } catch (error) {
+      console.error(error);
+    } finally {
+      isLoadingMore = false;
+    }
+  }
 </script>
 
 <!-- HEADER -->
@@ -284,17 +340,26 @@
 
 <!-- MOVIES -->
 <div class="mt-24 px-4 grid gap-4 lg:grid-cols-2" class:mt-32={isFiltering}>
-  {#each data.movies.results as movie (movie.id)}
+  {#each visibleMovies as movie (movie.id)}
     <MovieCardWithActions
       title={movie.title}
       poster_path={movie.poster_path ?? undefined}
       release_date={movie.release_date}
-      is_watched={!!data.watched?.find(m => m.mediaId === movie.id.toString())}
-      is_watchNext={!!data.watchNext?.find(m => m.mediaId === movie.id.toString())}
+      is_watched={watchedIds.has(movie.id.toString())}
+      is_watchNext={watchNextIds.has(movie.id.toString())}
       onClick={() => goto(`/movie/${movie.id}`)}
     />
   {/each}
 </div>
+
+{#if hasMoreMovies}
+  <div class="px-4 py-6">
+    <InfiniteScrollTrigger disabled={isLoadingMore} onEnter={loadMoreMovies} />
+    {#if isLoadingMore}
+      <p class="text-center text-sm text-gray-400">Loading more movies...</p>
+    {/if}
+  </div>
+{/if}
 
 <!-- FILTER MODAL -->
 {#if showFilter}

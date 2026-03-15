@@ -16,7 +16,7 @@ export class WatchedRepo {
     title: string;
     posterPath?: string;
     releaseYear?: number;
-    genreId?: number;
+    genreIds?: number[];
     rating?: number;
   }) {
     return db.insert(watched).values({
@@ -26,7 +26,7 @@ export class WatchedRepo {
       title: data.title,
       posterPath: data.posterPath,
       releaseYear: data.releaseYear,
-      genreId: data.genreId,
+      genreIds: data.genreIds,
       rating: data.rating !== undefined ? data.rating.toString() : undefined
     });
   }

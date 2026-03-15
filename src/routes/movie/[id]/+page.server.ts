@@ -53,14 +53,13 @@ export const actions: Actions = {
     const profile = Profile.forUser(locals.user.id);
     const movie = await TMDB.getMovie(id);
     const {title, poster_path, release_date, genres} = movie;
-    const primaryGenreId = genres?.[0]?.id;
     await profile.watched.add({
       mediaId: id.toString(),
       title: title ?? 'Untitled',
       mediaType: 'movie',
       posterPath: poster_path ?? undefined,
       releaseYear: release_date ? new Date(release_date).getFullYear() : undefined,
-      genreId: primaryGenreId
+      genreIds: genres?.slice(0,4).map(g => g.id) || []
     });
     return { success: true, message: 'Movie marked as watched' }; 
   },

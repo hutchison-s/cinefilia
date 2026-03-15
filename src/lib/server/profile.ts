@@ -40,7 +40,7 @@ export class Profile {
     title: string;
     posterPath?: string;
     releaseYear?: number;
-    genreId?: number;
+    genreIds?: number[];
     rating?: number;
   }) {
     return db.transaction(async (tx) => {
