@@ -12,7 +12,7 @@
 
     const props = $props<{
         movies?: ScrollMovie[];
-        viewMoreLink: string;
+        viewMoreLink?: string;
         maxDisplay?: number;
         snapMode?: 'mandatory' | 'proximity';
         showRatings?: boolean;
@@ -23,14 +23,14 @@
     const maxDisplay = $derived(props.maxDisplay ?? 8);
     const movies = $derived(props.movies ?? []);
     const visibleMovies = $derived(movies.slice(0, maxDisplay));
-    const hasMore = $derived(movies.length > maxDisplay);
+    const hasMore = $derived(Boolean(props.viewMoreLink) && movies.length > maxDisplay);
 </script>
 
 <HorizontalScrollContainer snapMode={props.snapMode}>
     {#each visibleMovies as item (item.mediaId)}
         <MovePosterDisplay {item} showRatings={props.showRatings} />
     {/each}
-    {#if hasMore}
+    {#if hasMore && props.viewMoreLink}
         <a href={props.viewMoreLink} class="snap-start flex flex-col w-36 items-center gap-2 justify-center border-2 border-dashed border-gray-600 rounded-md text-gray-400">
             <span class={props.viewAllTextClass ?? 'text-sm text-center text-primary'}>View All</span>
             {#if props.showArrowOnViewAll}

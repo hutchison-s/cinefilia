@@ -68,7 +68,9 @@
 			<BackButton />
 		{/if}
 		<Menu links={menuLinks}/>
+		{#if data.user}
 		<HeaderSearch onOpen={() => isSearchOpen = true} />
+		{/if}
 	</div>
 
 </header>

@@ -26,6 +26,7 @@
             Watch Next
         </h3>
     </a>
+    {#if data.watchNext?.length}
     <HorizontalMovieScroll 
         movies={data.watchNext?.sort((a,b)=>createdAtSort(a,b,'asc'))} 
         viewMoreLink="/watch-next" 
@@ -33,6 +34,12 @@
         showArrowOnViewAll={true}
         viewAllTextClass="text-2xl text-center"
     />
+    {:else}
+    <div class="my-6 mx-4 p-4 rounded border border-gray-400">
+        <a href="/explore" class="block w-full text-center text-gray-400 text-xl font-light">Find movies to watch</a>
+    </div>
+    {/if}
+    {#if data.watched?.length}
     <a href="/watched">
         <h3 class="w-full border-y border-primary bg-gradient-to-br via-transparent to-primary/50 text-center font-thin uppercase text-white text-xl font-semibold py-2 mb-2 mt-2">
             Watched
@@ -46,32 +53,20 @@
         showArrowOnViewAll={true}
         viewAllTextClass="text-2xl text-center"
     />
-        <!-- <h3 class="text-center border-y border-primary bg-gradient-to-br via-transparent to-primary/50 font-thin uppercase text-white text-xl font-semibold py-2 mb-2 mt-2">
-            In Theaters
-        </h3>
-    <HorizontalMovieScroll 
-        movies={data.inTheaters} 
-        viewMoreLink="/explore" 
-        maxDisplay={30}
+    {/if}
+
+    <h3 class="w-full border-y border-primary bg-gradient-to-br via-transparent to-primary/50 text-center font-thin uppercase text-white text-xl font-semibold py-2 mb-2 mt-2">
+        Recommended
+    </h3>
+    <HorizontalMovieScroll
+        movies={data.connectionRecommendations}
+        maxDisplay={20}
+        showRatings={false}
+        viewAllTextClass="text-2xl text-center"
     />
--->
-    <Button type='primary' btnClass="mx-auto px-4 block mt-6" on:click={()=>goto('/explore')} >Explore Movies</Button>
-<!--
-    <HorizontalScrollContainer>
-        <a href="/explore/genre" class="snap-start w-36 flex flex-col items-center gap-2">
-            <div class="w-32 h-48 rounded-md border border-slate-700 bg-gradient-to-br from-slate-900 to-slate-700 flex items-end p-3">
-                <span class="text-white text-lg font-thin uppercase">Genre</span>
-            </div>
-        </a>
-        <a href="/explore/decade" class="snap-start w-36 flex flex-col items-center gap-2">
-            <div class="w-32 h-48 rounded-md border border-slate-700 bg-gradient-to-br from-slate-900 to-slate-700 flex items-end p-3">
-                <span class="text-white text-lg font-thin uppercase">Decade</span>
-            </div>
-        </a>
-        <a href="/explore/actor" class="snap-start w-36 flex flex-col items-center gap-2">
-            <div class="w-32 h-48 rounded-md border border-slate-700 bg-gradient-to-br from-slate-900 to-slate-700 flex items-end p-3">
-                <span class="text-white text-lg font-thin uppercase">Actor</span>
-            </div>
-        </a>
-    </HorizontalScrollContainer> -->
+
+    <Button type='primary' btnClass="mx-auto px-4 block my-6" on:click={()=>goto('/explore')} >Explore Movies</Button>
+
+
+
 {/if}
