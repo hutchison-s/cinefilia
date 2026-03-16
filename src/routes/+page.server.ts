@@ -18,6 +18,8 @@ type HomepageRecommendation = {
   releaseYear: number | null;
 };
 
+const HOMEPAGE_RECOMMENDATION_LIMIT = 20;
+
 function shuffleArray<T>(items: T[]) {
   const copy = [...items];
 
@@ -176,6 +178,30 @@ async function getRandomGenreRecommendations(
   return recommendations;
 }
 
+function mergeRecommendations(
+  existing: HomepageRecommendation[],
+  incoming: HomepageRecommendation[],
+  limit = HOMEPAGE_RECOMMENDATION_LIMIT
+) {
+  const merged = [...existing];
+  const seenMediaIds = new Set(existing.map((item) => item.mediaId));
+
+  for (const item of incoming) {
+    if (seenMediaIds.has(item.mediaId)) {
+      continue;
+    }
+
+    seenMediaIds.add(item.mediaId);
+    merged.push(item);
+
+    if (merged.length >= limit) {
+      break;
+    }
+  }
+
+  return merged;
+}
+
 export const load: PageServerLoad = async ({ locals }) => {
   const user = locals.user;
   const today = new Date();
@@ -226,15 +252,18 @@ export const load: PageServerLoad = async ({ locals }) => {
   let connectionRecommendations: HomepageRecommendation[] = [];
 
   if (connectedUserIds.length > 0) {
-    const watchedMediaIds = watched.map((item) => item.mediaId);
+    const excludedMediaIds = new Set([
+      ...watched.map((item) => item.mediaId),
+      ...watchNext.map((item) => item.mediaId)
+    ]);
     const whereClauses = [
       inArray(watchedTable.userId, connectedUserIds),
       eq(watchedTable.mediaType, 'movie'),
       isNotNull(watchedTable.rating)
     ];
 
-    if (watchedMediaIds.length > 0) {
-      whereClauses.push(notInArray(watchedTable.mediaId, watchedMediaIds));
+    if (excludedMediaIds.size > 0) {
+      whereClauses.push(notInArray(watchedTable.mediaId, Array.from(excludedMediaIds)));
     }
 
     const recommendedRows = await db
@@ -255,7 +284,7 @@ export const load: PageServerLoad = async ({ locals }) => {
         desc(sql`count(*)`),
         desc(sql`max(${watchedTable.watchedAt})`)
       )
-      .limit(20);
+      .limit(HOMEPAGE_RECOMMENDATION_LIMIT);
 
     connectionRecommendations = recommendedRows.map((row) => ({
       mediaId: row.mediaId,
@@ -266,12 +295,18 @@ export const load: PageServerLoad = async ({ locals }) => {
     }));
   }
 
-  if (connectionRecommendations.length === 0 && watched.length > 0) {
-    connectionRecommendations = await getTasteBasedRecommendations(watched, releaseDateLte);
+  if (connectionRecommendations.length < HOMEPAGE_RECOMMENDATION_LIMIT && watched.length > 0) {
+    connectionRecommendations = mergeRecommendations(
+      connectionRecommendations,
+      await getTasteBasedRecommendations(watched, releaseDateLte)
+    );
   }
 
-  if (connectionRecommendations.length === 0) {
-    connectionRecommendations = await getRandomGenreRecommendations(watched, releaseDateLte);
+  if (connectionRecommendations.length < HOMEPAGE_RECOMMENDATION_LIMIT) {
+    connectionRecommendations = mergeRecommendations(
+      connectionRecommendations,
+      await getRandomGenreRecommendations(watched, releaseDateLte)
+    );
   }
 
   return {
