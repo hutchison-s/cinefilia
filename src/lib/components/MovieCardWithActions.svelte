@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { CircleCheck } from 'lucide-svelte';
+	import { CircleCheck, Users } from 'lucide-svelte';
   import BasicCard from './BasicCard.svelte';
   import Button from './Button.svelte';
 
@@ -9,7 +9,8 @@
     backdrop_path?: string;
     release_date?: string;
     is_watched?: boolean;
-    is_watchNext?: boolean
+    is_watchNext?: boolean;
+    connectionCount?: number;
     onClick?: () => void;
     onAddToWatchlist?: () => void;
     onMarkAsWatched?: () => void;
@@ -22,11 +23,10 @@
     release_date,
     is_watched,
     is_watchNext,
+    connectionCount,
     onAddToWatchlist,
     onMarkAsWatched
   } = props;
-
-  console.log(is_watched)
 
   const releaseYear = release_date
     ? new Date(release_date).getFullYear()
@@ -76,16 +76,27 @@
         <p class="text-lg text-left text-gray-400">{releaseYear}</p>
       {/if}
     </div>
-    <div>
-    {#if is_watched}
-        <div class="w-full flex justify-end items-center gap-2 text-green-400">
-          Watched <CircleCheck class="text-sm" />
-        </div>
+    <div class="flex items-end justify-end gap-3">
+      <div>
+        {#if connectionCount && connectionCount > 0}
+          <div class="flex w-fit items-center gap-1 text-xs text-slate-300">
+            <Users size={14} />
+            <span>{connectionCount}</span>
+          </div>
+        {/if}
+      </div>
+
+      <div>
+        {#if is_watched}
+          <div class="w-full flex justify-end items-center gap-2 text-green-400">
+            Watched <CircleCheck class="text-sm" />
+          </div>
         {:else if is_watchNext}
-        <div class="w-full flex justify-end items-center gap-2 text-primary-600">
-          Watch Next <CircleCheck class="text-sm" />
-        </div>
-      {/if}
+          <div class="w-full flex justify-end items-center gap-2 text-primary-600">
+            Watch Next <CircleCheck class="text-sm" />
+          </div>
+        {/if}
+      </div>
     </div> 
     
     {#if onMarkAsWatched || onAddToWatchlist}

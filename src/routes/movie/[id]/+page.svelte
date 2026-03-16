@@ -182,7 +182,40 @@
             }}
         />
         {/if}
-                
+
+        {#if data.connectionActivity.watched || data.connectionActivity.watchNext}
+            <div class="space-y-3 rounded-xl border border-slate-800 bg-black/30 p-4">
+                <h3 class="border-l-4 border-primary pl-4 text-lg font-semibold text-white">Connections</h3>
+
+                {#if data.connectionActivity.watched}
+                    <div class="rounded-lg border border-slate-800 bg-slate-950/50 p-3">
+                        <p class="text-sm text-white">{data.connectionActivity.watched.headline}</p>
+
+                        {#if data.connectionActivity.watched.expandable}
+                            <details class="mt-2">
+                                <summary class="cursor-pointer text-xs text-slate-400">See summary</summary>
+                                <div class="mt-2 space-y-1 text-xs text-slate-300">
+                                    {#each data.connectionActivity.watched.entries as entry}
+                                        <p>
+                                            {entry.userName}
+                                            {#if entry.rating !== null}
+                                                <span class="text-slate-500"> • {entry.rating} stars</span>
+                                            {/if}
+                                        </p>
+                                    {/each}
+                                </div>
+                            </details>
+                        {/if}
+                    </div>
+                {/if}
+
+                {#if data.connectionActivity.watchNext}
+                    <div class="rounded-lg border border-slate-800 bg-slate-950/50 p-3">
+                        <p class="text-sm text-white">{data.connectionActivity.watchNext.headline}</p>
+                    </div>
+                {/if}
+            </div>
+        {/if}
 
 
         {#if castSlice.length > 0}

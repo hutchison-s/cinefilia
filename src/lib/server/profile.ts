@@ -1,6 +1,7 @@
 import { WatchedRepo } from './repos/watched.repo';
 import { WatchNextRepo } from './repos/watch-next.repo';
 import { ReviewRepo } from './repos/review.repo';
+import { ConnectionRepo } from './repos/connection.repo';
 import { db } from './db';
 
 export class Profile {
@@ -9,6 +10,7 @@ export class Profile {
   readonly watched: WatchedRepo;
   readonly watchNext: WatchNextRepo;
   readonly reviews: ReviewRepo;
+  readonly connections: ConnectionRepo;
 
   private constructor(userId: string) {
     if (!userId) {
@@ -20,6 +22,7 @@ export class Profile {
     this.watched = new WatchedRepo(userId);
     this.watchNext = new WatchNextRepo(userId);
     this.reviews = new ReviewRepo(userId);
+    this.connections = new ConnectionRepo(userId);
   }
 
   /* ───────────── Factory ───────────── */

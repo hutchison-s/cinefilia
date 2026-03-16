@@ -20,6 +20,7 @@
 			{ label: 'Home', href: '/' },
 			{ label: 'Watched', href: '/watched' },
 			{ label: 'Watch Next', href: '/watch-next' },
+			{ label: 'Connections', href: '/connections' },
 			{ label: 'Explore', href: '/explore' },
 			{ label: 'Profile', href: '/profile' },
 			{ label: 'About', href: '/about' },
@@ -96,6 +97,7 @@
   <SearchOverlay 
   	watchedIds={data?.watched?.map(i => i.mediaId) || []} 
   	watchNextIds={data?.watchNext?.map(i => i.mediaId) || []} 
+  	connectionCounts={data?.connectionCounts || {}}
 	onClose={() => isSearchOpen = false} />
 {/if}
 </div>

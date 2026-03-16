@@ -347,6 +347,7 @@
       release_date={movie.release_date}
       is_watched={watchedIds.has(movie.id.toString())}
       is_watchNext={watchNextIds.has(movie.id.toString())}
+      connectionCount={data.connectionCounts?.[movie.id.toString()] ?? 0}
       onClick={() => goto(`/movie/${movie.id}`)}
     />
   {/each}

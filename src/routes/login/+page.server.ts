@@ -2,8 +2,18 @@ import { fail, redirect } from '@sveltejs/kit';
 import { auth } from '$lib/server/auth';
 import type { Actions } from './$types';
 
+function getSafeRedirect(url: URL) {
+  const redirectTo = url.searchParams.get('redirectTo');
+
+  if (!redirectTo || !redirectTo.startsWith('/') || redirectTo.startsWith('//')) {
+    return '/';
+  }
+
+  return redirectTo;
+}
+
 export const actions: Actions = {
-  signup: async ({ request }) => {
+  signup: async ({ request, url }) => {
     const data = await request.formData();
 
     const email = data.get('email');
@@ -26,10 +36,10 @@ export const actions: Actions = {
       return fail(400, { error: 'Sign up failed' });
     }
 
-    throw redirect(303, '/');
+    throw redirect(303, getSafeRedirect(url));
   },
 
-  login: async ({ request }) => {
+  login: async ({ request, url }) => {
     const data = await request.formData();
 
     const email = data.get('email');
@@ -50,6 +60,6 @@ export const actions: Actions = {
       return fail(401, { error: 'Invalid email or password' });
     }
 
-    throw redirect(303, '/');
+    throw redirect(303, getSafeRedirect(url));
   }
 };

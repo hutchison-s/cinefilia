@@ -22,6 +22,8 @@ export const load: LayoutServerLoad = async ({ request }) => {
       profile.reviews.list()
     ]);
 
+    const connectionCounts = await profile.connections.connectionCountsByMedia();
+
     const genres = await GenreRepo.list();
   
     return {
@@ -30,7 +32,8 @@ export const load: LayoutServerLoad = async ({ request }) => {
       watched,
       watchNext,
       reviews,
-      genres
+      genres,
+      connectionCounts
     };
 
 };

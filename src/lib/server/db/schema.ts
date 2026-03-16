@@ -148,5 +148,46 @@ export const genre = pgTable(
   ]
 );
 
+/* ─────────────────────────────────────────────
+   CONNECTION
+   One row per invite / accepted connection
+───────────────────────────────────────────── */
+
+export const connection = pgTable(
+  'connection',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    shareId: uuid('share_id').notNull(),
+    status: text('status').notNull().default('pending'),
+
+    initiatorUserId: text('initiator_user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+
+    recipientUserId: text('recipient_user_id').references(() => user.id, {
+      onDelete: 'cascade'
+    }),
+
+    pendingAt: timestamp('pending_at').defaultNow().notNull(),
+    acceptedAt: timestamp('accepted_at'),
+    rejectedAt: timestamp('rejected_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at')
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull()
+  },
+  (table) => [
+    index('connection_share_idx').on(table.shareId),
+    index('connection_initiator_user_idx').on(table.initiatorUserId),
+    index('connection_recipient_user_idx').on(table.recipientUserId),
+    index('connection_status_idx').on(table.status),
+    uniqueIndex('connection_share_recipient_unique').on(
+      table.shareId,
+      table.recipientUserId
+    )
+  ]
+);
+
 
 export * from './auth.schema';

@@ -6,6 +6,7 @@
   const props = $props<{
     watchedIds: string[];
     watchNextIds: string[];
+    connectionCounts?: Record<string, number>;
     onClose: () => void;
   }>();
 
@@ -17,13 +18,6 @@
       props.onClose();
     }
   }
-
-  $effect(()=> {
-    if (results.length > 0) {
-      console.log($state.snapshot(results).slice(0, 1));
-      console.log(props.watchedIds)
-    }
-  })
 
   $effect(() => {
     results;
@@ -84,6 +78,7 @@
           release_date={item.release_date}
           is_watched={props.watchedIds.includes(String(item.id))}
           is_watchNext={props.watchNextIds.includes(String(item.id))}
+          connectionCount={props.connectionCounts?.[String(item.id)] ?? 0}
           onClick={()=>{
             goto(`/movie/${item.id}`);
             props.onClose();
