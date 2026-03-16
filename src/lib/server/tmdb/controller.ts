@@ -13,6 +13,7 @@ type Pagination = {
 type DiscoverPagination = Pagination & {
   sortBy?: string;
   originCountry?: string;
+  region?: string;
   releaseDateGte?: string;
   releaseDateLte?: string;
 };
@@ -428,6 +429,9 @@ static async discover({
   genreIds,
   selectedDecades,
   sortBy = 'popularity.desc',
+  originCountry,
+  region,
+  includeAdult = false,
   releaseDateLte
 }: {
   page?: number;
@@ -435,6 +439,9 @@ static async discover({
   genreIds?: string;
   selectedDecades?: number[];
   sortBy?: string;
+  originCountry?: string;
+  region?: string;
+  includeAdult?: boolean;
   releaseDateLte?: string;
 }) {
 
@@ -451,6 +458,9 @@ static async discover({
   const params = {
     page,
     sort_by: sortBy,
+    include_adult: includeAdult ? 'true' : 'false',
+    with_origin_country: originCountry,
+    region,
     with_cast: actorId,
     with_genres: genreIds,
     'primary_release_date.gte': startYear

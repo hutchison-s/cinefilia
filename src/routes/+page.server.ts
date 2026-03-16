@@ -19,6 +19,7 @@ type HomepageRecommendation = {
 };
 
 const HOMEPAGE_RECOMMENDATION_LIMIT = 20;
+const INVALID_MPAA_RATINGS = new Set(['NR', 'NOT RATED', 'UNRATED']);
 
 function shuffleArray<T>(items: T[]) {
   const copy = [...items];
@@ -71,11 +72,59 @@ function buildTopGenreDecadePairs(
     .slice(0, 5);
 }
 
+function hasAllowedMpaaRating(mpaaRating: string | null | undefined) {
+  if (!mpaaRating) {
+    return false;
+  }
+
+  return !INVALID_MPAA_RATINGS.has(mpaaRating.trim().toUpperCase());
+}
+
+async function filterRecommendationsByMpaa(
+  candidates: HomepageRecommendation[]
+): Promise<HomepageRecommendation[]> {
+  const details = await Promise.all(
+    candidates.map(async (candidate) => {
+      const mediaId = Number(candidate.mediaId);
+
+      if (!Number.isFinite(mediaId)) {
+        return null;
+      }
+
+      try {
+        const movie = await TMDB.getMovie(mediaId);
+
+        if (!hasAllowedMpaaRating(movie.mpaaRating)) {
+          return null;
+        }
+
+        return candidate;
+      } catch (error) {
+        console.error('[home recommendations] failed MPAA lookup', {
+          mediaId: candidate.mediaId,
+          error
+        });
+        return null;
+      }
+    })
+  );
+
+  return details.filter((candidate): candidate is HomepageRecommendation => candidate !== null);
+}
+
 async function getTasteBasedRecommendations(
   watched: Array<{ mediaId: string; genreIds: number[] | null; releaseYear: number | null }>,
   today: string
 ): Promise<HomepageRecommendation[]> {
   const topPairs = buildTopGenreDecadePairs(watched);
+  console.log(
+    '[home recommendations] top genre/decade pairs',
+    topPairs.map(({ genreId, decadeStart, count }) => ({
+      genreId,
+      decadeStart,
+      count
+    }))
+  );
 
   if (topPairs.length === 0) {
     return [];
@@ -89,11 +138,14 @@ async function getTasteBasedRecommendations(
         selectedDecades: [decadeStart],
         sortBy: 'popularity.desc',
         page: 1,
+        originCountry: 'US',
+        region: 'US',
+        includeAdult: false,
         releaseDateLte: today
       });
 
       return movies.results
-        .filter((movie) => movie.poster_path)
+        .filter((movie) => movie.poster_path && movie.vote_average > 0)
         .map((movie) => ({
           mediaId: String(movie.id),
           title: movie.title,
@@ -122,7 +174,7 @@ async function getTasteBasedRecommendations(
     }
   }
 
-  return recommendations;
+  return filterRecommendationsByMpaa(recommendations);
 }
 
 async function getRandomGenreRecommendations(
@@ -142,11 +194,14 @@ async function getRandomGenreRecommendations(
         genreIds: String(id),
         sortBy: 'popularity.desc',
         page: 1,
+        originCountry: 'US',
+        region: 'US',
+        includeAdult: false,
         releaseDateLte: today
       });
 
       return movies.results
-        .filter((movie) => movie.poster_path)
+        .filter((movie) => movie.poster_path && movie.vote_average > 0)
         .map((movie) => ({
           mediaId: String(movie.id),
           title: movie.title,
@@ -175,7 +230,7 @@ async function getRandomGenreRecommendations(
     }
   }
 
-  return recommendations;
+  return filterRecommendationsByMpaa(recommendations);
 }
 
 function mergeRecommendations(
@@ -286,13 +341,15 @@ export const load: PageServerLoad = async ({ locals }) => {
       )
       .limit(HOMEPAGE_RECOMMENDATION_LIMIT);
 
-    connectionRecommendations = recommendedRows.map((row) => ({
-      mediaId: row.mediaId,
-      title: row.title,
-      posterPath: row.posterPath,
-      releaseYear: row.releaseYear,
-      rating: Number(row.averageRating)
-    }));
+    connectionRecommendations = await filterRecommendationsByMpaa(
+      recommendedRows.map((row) => ({
+        mediaId: row.mediaId,
+        title: row.title,
+        posterPath: row.posterPath,
+        releaseYear: row.releaseYear,
+        rating: Number(row.averageRating)
+      }))
+    );
   }
 
   if (connectionRecommendations.length < HOMEPAGE_RECOMMENDATION_LIMIT && watched.length > 0) {
