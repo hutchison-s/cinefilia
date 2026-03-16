@@ -36,6 +36,10 @@
 	};
 </script>
 
+<svelte:head>
+	<title>{isNewUser ? 'Sign Up' : 'Login'} - Cinefilia</title>
+</svelte:head>
+
 <BasicCard title={isNewUser ? 'Sign Up' : 'Login'}
   cardClass="p-6 w-full max-w-md mx-auto mt-12">
 	<form

@@ -123,6 +123,11 @@
     };
 
 </script>
+
+<svelte:head>
+    <title>{data.movie?.title ? `${data.movie.title} - Cinefilia` : 'Movie - Cinefilia'}</title>
+</svelte:head>
+
 <div class="flex flex-col gap-6 h-full overflow-auto p-2 px-4 max-w-[600px] md:mx-auto">
     <div class="flex flex-col gap-6">
         <div class="space-y-2 md:grid md:grid-cols-[10rem_1fr] md:gap-x-4">

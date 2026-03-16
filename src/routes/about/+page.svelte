@@ -1,3 +1,7 @@
+<svelte:head>
+  <title>About - Cinefilia</title>
+</svelte:head>
+
 <section class="max-w-3xl mx-auto px-6 py-16 text-zinc-200">
   <h1 class="text-3xl font-semibold mb-6">About Cinefilia</h1>
 

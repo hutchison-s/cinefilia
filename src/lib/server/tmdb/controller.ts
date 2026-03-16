@@ -427,13 +427,15 @@ static async discover({
   actorId,
   genreIds,
   selectedDecades,
-  sortBy = 'popularity.desc'
+  sortBy = 'popularity.desc',
+  releaseDateLte
 }: {
   page?: number;
   actorId?: string;
   genreIds?: string;
   selectedDecades?: number[];
   sortBy?: string;
+  releaseDateLte?: string;
 }) {
 
   let startYear: number | undefined;
@@ -455,8 +457,10 @@ static async discover({
       ? `${startYear}-01-01`
       : undefined,
     'primary_release_date.lte': endYear
-      ? `${endYear}-12-31`
-      : undefined
+      ? releaseDateLte
+        ? (releaseDateLte < `${endYear}-12-31` ? releaseDateLte : `${endYear}-12-31`)
+        : `${endYear}-12-31`
+      : releaseDateLte
   };
 
   const data = await this.fetch<TMDBListResponse<TMDBMovieListItem>>(

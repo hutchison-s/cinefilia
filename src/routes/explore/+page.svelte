@@ -2,11 +2,15 @@
   import { deserialize } from '$app/forms';
   import { goto } from '$app/navigation';
   import { page } from '$app/state';
-  import { Funnel, ArrowDownUp } from 'lucide-svelte';
+  import { Funnel, ArrowDownUp, Check } from 'lucide-svelte';
   import type { PageData } from './$types';
 	import Pill from '$lib/components/Pill.svelte';
 	import MovieCardWithActions from '$lib/components/MovieCardWithActions.svelte';
   import InfiniteScrollTrigger from '$lib/components/InfiniteScrollTrigger.svelte';
+  import {
+    getExplorePageSnapshot,
+    setExplorePageSnapshot
+  } from '$lib/state/explorePageState';
   import type { TMDBMovieListItem } from '$lib/server/tmdb/controller';
 
   const { data } = $props();
@@ -25,6 +29,10 @@
   const currentSort = $derived(
     sp.get('sort') ?? 'popularity.desc'
   );
+  const includeFutureReleaseDates = $derived(
+    sp.get('includeFutureReleaseDates') === 'true'
+  );
+  const snapshotKey = $derived(`${url.pathname}?${sp.toString()}`);
 
   /* ================= MODAL STATE ================= */
 
@@ -36,6 +44,7 @@
   let draftGenres = $state<string[]>([]);
   let draftDecades = $state<number[]>([]);
   let draftActor = $state<string | null>(null);
+  let draftIncludeFutureReleaseDates = $state(false);
 
   let actorQuery = $state('');
   let actorResults = $state<{ id: number; name: string }[]>([]);
@@ -44,6 +53,9 @@
   let nextPage = $state(2);
   let totalPages = $state(1);
   let isLoadingMore = $state(false);
+  let pageTitle = $derived(
+    data.actorName ? `${data.actorName} Movies - Cinefilia` : 'Explore Movies - Cinefilia'
+  );
 
   /* Sync draft when modal opens */
   $effect(() => {
@@ -51,6 +63,7 @@
       draftGenres = [...currentGenres];
       draftDecades = [...currentDecades];
       draftActor = currentActor;
+      draftIncludeFutureReleaseDates = includeFutureReleaseDates;
       actorQuery = '';
       actorResults = [];
     }
@@ -130,8 +143,6 @@
     }, 300);
   }
 
-  $inspect('actorResults updated', actorResults)
-
   $effect(() => {
     if (actorQuery.trim().length >= 2 && !draftActor) {
       debounceSearch(actorQuery);
@@ -165,6 +176,12 @@
       params.delete('actor');
     }
 
+    if (draftIncludeFutureReleaseDates) {
+      params.set('includeFutureReleaseDates', 'true');
+    } else {
+      params.delete('includeFutureReleaseDates');
+    }
+
     params.set('page', '1');
 
     goto(`?${params.toString()}`);
@@ -181,7 +198,9 @@
     showFilter = false;
   }
 
-  let isFiltering = $derived(currentGenres.length || currentDecades.length || currentActor)
+  let isFiltering = $derived(
+    currentGenres.length || currentDecades.length || currentActor || includeFutureReleaseDates
+  )
 
   /* ================= SORT ================= */
 
@@ -228,11 +247,30 @@
   const watchNextIds = $derived(new Set((data.watchNext ?? []).map((m) => m.mediaId)));
   const hasMoreMovies = $derived(nextPage <= totalPages);
 
+  function persistExploreSnapshot() {
+    setExplorePageSnapshot(snapshotKey, {
+      visibleMovies,
+      nextPage,
+      totalPages
+    });
+  }
+
   $effect(() => {
+    const cachedSnapshot = getExplorePageSnapshot(snapshotKey);
+
+    if (cachedSnapshot) {
+      visibleMovies = cachedSnapshot.visibleMovies;
+      nextPage = cachedSnapshot.nextPage;
+      totalPages = cachedSnapshot.totalPages;
+      isLoadingMore = false;
+      return;
+    }
+
     visibleMovies = data.movies.results;
     nextPage = data.movies.page + 1;
     totalPages = data.movies.total_pages;
     isLoadingMore = false;
+    persistExploreSnapshot();
   });
 
   async function loadMoreMovies() {
@@ -266,6 +304,7 @@
       visibleMovies = [...visibleMovies, ...movies.results];
       totalPages = movies.total_pages;
       nextPage = movies.page + 1;
+      persistExploreSnapshot();
     } catch (error) {
       console.error(error);
     } finally {
@@ -273,6 +312,10 @@
     }
   }
 </script>
+
+<svelte:head>
+  <title>{pageTitle}</title>
+</svelte:head>
 
 <!-- HEADER -->
 <div class="fixed top-18 h-13 left-0 right-0 bg-gradient-primary backdrop-blur-md z-10 px-4 py-2 flex justify-between items-center">
@@ -298,7 +341,7 @@
 </div>
   <!--Active filters-->
   {#if isFiltering}
-<div class="fixed top-31 w-full items-center flex gap-1 px-1.5 py-2.5 z-100 bg-black/50 backdrop-blur-md">
+<div class="fixed top-31 z-5 flex w-full items-center gap-1 bg-black/50 px-1.5 py-2.5 backdrop-blur-md">
 
   <!-- GENRES -->
   {#each currentGenres as g}
@@ -334,6 +377,15 @@
     />
   {/if}
 
+  {#if includeFutureReleaseDates}
+    <Pill
+      theme="secondary"
+      size="md"
+      label="Future releases"
+      onclick={() => removeParam('includeFutureReleaseDates')}
+    />
+  {/if}
+
 </div>
 {/if}
 
@@ -365,7 +417,7 @@
 <!-- FILTER MODAL -->
 {#if showFilter}
 <div
-  class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center"
+  class="fixed inset-0 z-30 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center"
   onclick={() => showFilter = false}
 >
   <div
@@ -414,6 +466,31 @@
           </button>
         {/each}
       </div>
+    </div>
+
+    <div class="mb-6">
+      <label class="flex items-center gap-4 py-1 text-sm text-gray-400">
+        
+        <span class="relative flex h-5 w-5 items-center justify-center">
+          <input
+            type="checkbox"
+            bind:checked={draftIncludeFutureReleaseDates}
+            class="absolute inset-0 cursor-pointer opacity-0"
+          />
+          <span
+            class="flex h-5 w-5 items-center justify-center rounded-md border transition-colors"
+            class:border-primary={draftIncludeFutureReleaseDates}
+            class:bg-primary={draftIncludeFutureReleaseDates}
+            class:border-slate-500={!draftIncludeFutureReleaseDates}
+            aria-hidden="true"
+          >
+            {#if draftIncludeFutureReleaseDates}
+              <Check size={14} class="text-white" />
+            {/if}
+          </span>
+        </span>
+        <span>Include future release dates</span>
+      </label>
     </div>
 
    <!-- ACTOR -->
@@ -472,7 +549,7 @@
 <!-- SORT MODAL -->
 {#if showSort}
 <div
-  class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center"
+  class="fixed inset-0 z-30 flex items-center justify-center bg-black/60 backdrop-blur-sm"
   onclick={() => showSort = false}
 >
   <div

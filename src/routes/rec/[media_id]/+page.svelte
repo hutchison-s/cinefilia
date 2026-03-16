@@ -15,3 +15,7 @@
     goto('/login', { replaceState: true });
   });
 </script>
+
+<svelte:head>
+  <title>Login - Cinefilia</title>
+</svelte:head>

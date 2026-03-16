@@ -183,10 +183,10 @@
         {#each data.connections.incomingPending as share}
           <div class="rounded-lg border border-slate-700 bg-slate-950/50 p-4">
             <p class="text-white">
-              <span class="font-semibold">{share.sharingUserName}</span>
+              <span class="font-semibold">{share.initiatorUserName ?? share.initiatorUserEmail}</span>
               invited you to connect.
             </p>
-            <p class="mt-1 text-sm text-slate-400">{share.sharingUserEmail} • Sent {formatDate(share.pendingAt)}</p>
+            <p class="mt-1 text-sm text-slate-400">{share.initiatorUserEmail} • Sent {formatDate(share.pendingAt)}</p>
             <div class="mt-4 flex flex-wrap gap-3">
               <form method="POST" action="?/respondToPending">
                 <input type="hidden" name="recordId" value={share.id} />
@@ -277,7 +277,7 @@
               <div class="flex items-center justify-between gap-3">
                 <div class="min-w-0">
                   <p class="truncate text-sm text-white">
-                    <span class="font-semibold">{share.targetUserName ?? share.targetUserEmail}</span>
+                    <span class="font-semibold">{share.recipientUserName ?? share.recipientUserEmail}</span>
                   </p>
                 </div>
 
@@ -287,7 +287,7 @@
                     class="rounded-md p-2 text-slate-300 transition hover:bg-slate-800 hover:text-red-300"
                     title="Cancel invite"
                     aria-label="Cancel invite"
-                    onclick={() => openDeleteModal(share.id, '?/stopConnection', `Cancel your invite to ${share.targetUserName ?? share.targetUserEmail}?`)}
+                    onclick={() => openDeleteModal(share.id, '?/stopConnection', `Cancel your invite to ${share.recipientUserName ?? share.recipientUserEmail}?`)}
                   >
                     <X size={16} />
                   </button>
@@ -295,7 +295,7 @@
               </div>
 
               <div class="mt-1 space-y-0.5">
-                <p class="text-xs text-slate-500">{share.targetUserEmail}</p>
+                <p class="text-xs text-slate-500">{share.recipientUserEmail}</p>
                 <p class="text-xs text-slate-500">
                   Sent {formatDate(share.pendingAt)}
                 </p>

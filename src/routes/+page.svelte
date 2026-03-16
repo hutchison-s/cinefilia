@@ -14,6 +14,10 @@
 
 </script>
 
+<svelte:head>
+	<title>Home - Cinefilia</title>
+</svelte:head>
+
 {#if !data.session}
  <LandingPage />
 {:else} 
