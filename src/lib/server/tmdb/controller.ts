@@ -44,10 +44,12 @@ type Genre = {
 };
 
 export type TMDBMovieListItem = {
+  adult: boolean;
   id: number;
   title: string;
   poster_path: string | null;
   backdrop_path: string | null;
+  genre_ids?: number[];
   release_date: string;
   vote_average: number;
   popularity: number;
@@ -244,6 +246,8 @@ export class TMDB {
     {
       page = 1,
       sortBy = 'popularity.desc',
+      originCountry,
+      region,
       releaseDateGte,
       releaseDateLte
     }: DiscoverPagination = {}
@@ -251,6 +255,8 @@ export class TMDB {
     const data = await this.fetch<TMDBListResponse<TMDBMovieListItem>>('/discover/movie', {
       page,
       sort_by: sortBy,
+      with_origin_country: originCountry,
+      region,
       'primary_release_date.gte': releaseDateGte,
       'primary_release_date.lte': releaseDateLte
     });

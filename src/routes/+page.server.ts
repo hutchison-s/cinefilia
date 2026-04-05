@@ -1,107 +1,46 @@
 import { Profile } from '$lib/server/profile';
-import { db } from '$lib/server/db';
-import { watched as watchedTable } from '$lib/server/db/schema';
-import { GenreRepo } from '$lib/server/repos/genre.repo';
 import { TMDB } from '$lib/server/tmdb/controller';
-import { and, desc, eq, inArray, isNotNull, notInArray, sql } from 'drizzle-orm';
+import {
+  getConnectionRecommendations,
+  getLeadActorRecommendations,
+  getTopGenreRecommendations
+} from '$lib/server/getRecommendations';
 import type { PageServerLoad } from './$types';
 
 function formatDate(date: Date) {
   return date.toISOString().slice(0, 10);
 }
 
-type HomepageRecommendation = {
-  mediaId: string;
-  title: string;
-  posterPath: string | null;
-  rating: number;
-  releaseYear: number | null;
-};
+const HORROR_GENRE_ID = 27;
 
-const HOMEPAGE_RECOMMENDATION_LIMIT = 20;
-const INVALID_MPAA_RATINGS = new Set(['NR', 'NOT RATED', 'UNRATED']);
-
-function shuffleArray<T>(items: T[]) {
-  const copy = [...items];
-
-  for (let index = copy.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(Math.random() * (index + 1));
-    [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
-  }
-
-  return copy;
-}
-
-function buildTopGenreDecadePairs(
-  watched: Array<{ genreIds: number[] | null; releaseYear: number | null }>
+async function getPreferredGenreIds(
+  watched: Array<{ genreIds: number[] | null }>,
+  watchNext: Array<{ mediaId: string; mediaType: string }>
 ) {
-  const pairCounts = new Map<string, { genreId: number; decadeStart: number; count: number }>();
+  const preferredGenreIds = new Set<number>();
 
   for (const item of watched) {
-    if (!item.releaseYear || !item.genreIds?.length) {
-      continue;
-    }
-
-    const decadeStart = Math.floor(item.releaseYear / 10) * 10;
-
-    for (const genreId of item.genreIds) {
-      const key = `${genreId}:${decadeStart}`;
-      const existing = pairCounts.get(key);
-
-      if (existing) {
-        existing.count += 1;
-        continue;
-      }
-
-      pairCounts.set(key, {
-        genreId,
-        decadeStart,
-        count: 1
-      });
+    for (const genreId of item.genreIds ?? []) {
+      preferredGenreIds.add(genreId);
     }
   }
 
-  return Array.from(pairCounts.values())
-    .sort((a, b) => {
-      if (b.count !== a.count) {
-        return b.count - a.count;
-      }
+  const watchNextMovieIds = watchNext
+    .filter((item) => item.mediaType === 'movie')
+    .map((item) => Number(item.mediaId))
+    .filter((id) => Number.isFinite(id));
 
-      return b.decadeStart - a.decadeStart;
-    })
-    .slice(0, 5);
-}
-
-function hasAllowedMpaaRating(mpaaRating: string | null | undefined) {
-  if (!mpaaRating) {
-    return false;
+  if (watchNextMovieIds.length === 0) {
+    return preferredGenreIds;
   }
 
-  return !INVALID_MPAA_RATINGS.has(mpaaRating.trim().toUpperCase());
-}
-
-async function filterRecommendationsByMpaa(
-  candidates: HomepageRecommendation[]
-): Promise<HomepageRecommendation[]> {
-  const details = await Promise.all(
-    candidates.map(async (candidate) => {
-      const mediaId = Number(candidate.mediaId);
-
-      if (!Number.isFinite(mediaId)) {
-        return null;
-      }
-
+  const watchNextMovies = await Promise.all(
+    watchNextMovieIds.map(async (movieId) => {
       try {
-        const movie = await TMDB.getMovie(mediaId);
-
-        if (!hasAllowedMpaaRating(movie.mpaaRating)) {
-          return null;
-        }
-
-        return candidate;
+        return await TMDB.getMovie(movieId);
       } catch (error) {
-        console.error('[home recommendations] failed MPAA lookup', {
-          mediaId: candidate.mediaId,
+        console.error('[home in theaters] failed to load watch-next movie genres', {
+          movieId,
           error
         });
         return null;
@@ -109,152 +48,13 @@ async function filterRecommendationsByMpaa(
     })
   );
 
-  return details.filter((candidate): candidate is HomepageRecommendation => candidate !== null);
-}
-
-async function getTasteBasedRecommendations(
-  watched: Array<{ mediaId: string; genreIds: number[] | null; releaseYear: number | null }>,
-  today: string
-): Promise<HomepageRecommendation[]> {
-  const topPairs = buildTopGenreDecadePairs(watched);
-  console.log(
-    '[home recommendations] top genre/decade pairs',
-    topPairs.map(({ genreId, decadeStart, count }) => ({
-      genreId,
-      decadeStart,
-      count
-    }))
-  );
-
-  if (topPairs.length === 0) {
-    return [];
-  }
-
-  const watchedMediaIds = new Set(watched.map((item) => item.mediaId));
-  const resultsByPair = await Promise.all(
-    topPairs.map(async ({ genreId, decadeStart }) => {
-      const movies = await TMDB.discover({
-        genreIds: String(genreId),
-        selectedDecades: [decadeStart],
-        sortBy: 'popularity.desc',
-        page: 1,
-        originCountry: 'US',
-        region: 'US',
-        includeAdult: false,
-        releaseDateLte: today
-      });
-
-      return movies.results
-        .filter((movie) => movie.poster_path && movie.vote_average > 0)
-        .map((movie) => ({
-          mediaId: String(movie.id),
-          title: movie.title,
-          posterPath: movie.poster_path,
-          rating: movie.vote_average,
-          releaseYear: movie.release_date ? new Date(movie.release_date).getFullYear() : null
-        }));
-    })
-  );
-
-  const recommendations: HomepageRecommendation[] = [];
-  const seenMediaIds = new Set<string>();
-
-  for (const pairResults of resultsByPair) {
-    for (const movie of pairResults) {
-      if (watchedMediaIds.has(movie.mediaId) || seenMediaIds.has(movie.mediaId)) {
-        continue;
-      }
-
-      seenMediaIds.add(movie.mediaId);
-      recommendations.push(movie);
-
-      if (recommendations.length >= 20) {
-        return recommendations;
-      }
+  for (const movie of watchNextMovies) {
+    for (const genre of movie?.genres ?? []) {
+      preferredGenreIds.add(genre.id);
     }
   }
 
-  return filterRecommendationsByMpaa(recommendations);
-}
-
-async function getRandomGenreRecommendations(
-  watched: Array<{ mediaId: string }>,
-  today: string
-): Promise<HomepageRecommendation[]> {
-  const genres = shuffleArray(await GenreRepo.list()).slice(0, 4);
-
-  if (genres.length === 0) {
-    return [];
-  }
-
-  const watchedMediaIds = new Set(watched.map((item) => item.mediaId));
-  const resultsByGenre = await Promise.all(
-    genres.map(async ({ id }) => {
-      const movies = await TMDB.discover({
-        genreIds: String(id),
-        sortBy: 'popularity.desc',
-        page: 1,
-        originCountry: 'US',
-        region: 'US',
-        includeAdult: false,
-        releaseDateLte: today
-      });
-
-      return movies.results
-        .filter((movie) => movie.poster_path && movie.vote_average > 0)
-        .map((movie) => ({
-          mediaId: String(movie.id),
-          title: movie.title,
-          posterPath: movie.poster_path,
-          rating: movie.vote_average,
-          releaseYear: movie.release_date ? new Date(movie.release_date).getFullYear() : null
-        }));
-    })
-  );
-
-  const recommendations: HomepageRecommendation[] = [];
-  const seenMediaIds = new Set<string>();
-
-  for (const genreResults of resultsByGenre) {
-    for (const movie of genreResults) {
-      if (watchedMediaIds.has(movie.mediaId) || seenMediaIds.has(movie.mediaId)) {
-        continue;
-      }
-
-      seenMediaIds.add(movie.mediaId);
-      recommendations.push(movie);
-
-      if (recommendations.length >= 20) {
-        return recommendations;
-      }
-    }
-  }
-
-  return filterRecommendationsByMpaa(recommendations);
-}
-
-function mergeRecommendations(
-  existing: HomepageRecommendation[],
-  incoming: HomepageRecommendation[],
-  limit = HOMEPAGE_RECOMMENDATION_LIMIT
-) {
-  const merged = [...existing];
-  const seenMediaIds = new Set(existing.map((item) => item.mediaId));
-
-  for (const item of incoming) {
-    if (seenMediaIds.has(item.mediaId)) {
-      continue;
-    }
-
-    seenMediaIds.add(item.mediaId);
-    merged.push(item);
-
-    if (merged.length >= limit) {
-      break;
-    }
-  }
-
-  return merged;
+  return preferredGenreIds;
 }
 
 export const load: PageServerLoad = async ({ locals }) => {
@@ -268,6 +68,8 @@ export const load: PageServerLoad = async ({ locals }) => {
   const inTheaters = await TMDB.getByReleaseDateRange({
     page: 1,
     sortBy: 'popularity.desc',
+    originCountry: 'US',
+    region: 'US',
     releaseDateGte,
     releaseDateLte
   });
@@ -296,82 +98,43 @@ export const load: PageServerLoad = async ({ locals }) => {
   ]);
 
   const connectedUserIds = await profile.connections.connectedUserIds();
+  const preferredGenreIds = await getPreferredGenreIds(watched, watchNext);
 
   const watchedIds = new Set(
     watched.map((item) => Number(item.mediaId)).filter((id) => Number.isFinite(id))
   );
-  const inTheatersUnwatched = inTheatersMovies.filter(
-    (movie) => !watchedIds.has(Number(movie.mediaId))
-  );
+  const inTheatersUnwatched = inTheaters.results
+    .filter(
+      (movie) =>
+        movie.poster_path &&
+        !movie.adult &&
+        !watchedIds.has(Number(movie.id)) &&
+        !movie.genre_ids?.includes(HORROR_GENRE_ID) &&
+        movie.genre_ids?.some((genreId) => preferredGenreIds.has(genreId))
+    )
+    .slice(0, 30)
+    .map((movie) => ({
+      mediaId: movie.id,
+      title: movie.title,
+      posterPath: movie.poster_path,
+      rating: movie.vote_average,
+      releaseDate: movie.release_date
+    }));
 
-  let connectionRecommendations: HomepageRecommendation[] = [];
-
-  if (connectedUserIds.length > 0) {
-    const excludedMediaIds = new Set([
-      ...watched.map((item) => item.mediaId),
-      ...watchNext.map((item) => item.mediaId)
-    ]);
-    const whereClauses = [
-      inArray(watchedTable.userId, connectedUserIds),
-      eq(watchedTable.mediaType, 'movie'),
-      isNotNull(watchedTable.rating)
-    ];
-
-    if (excludedMediaIds.size > 0) {
-      whereClauses.push(notInArray(watchedTable.mediaId, Array.from(excludedMediaIds)));
-    }
-
-    const recommendedRows = await db
-      .select({
-        mediaId: watchedTable.mediaId,
-        title: sql<string>`max(${watchedTable.title})`,
-        posterPath: sql<string | null>`max(${watchedTable.posterPath})`,
-        releaseYear: sql<number | null>`max(${watchedTable.releaseYear})`,
-        averageRating: sql<string>`avg(${watchedTable.rating})`,
-        ratingCount: sql<number>`count(*)::int`
-      })
-      .from(watchedTable)
-      .where(and(...whereClauses))
-      .groupBy(watchedTable.mediaId)
-      .having(sql`avg(${watchedTable.rating}) > 3`)
-      .orderBy(
-        desc(sql`avg(${watchedTable.rating})`),
-        desc(sql`count(*)`),
-        desc(sql`max(${watchedTable.watchedAt})`)
-      )
-      .limit(HOMEPAGE_RECOMMENDATION_LIMIT);
-
-    connectionRecommendations = await filterRecommendationsByMpaa(
-      recommendedRows.map((row) => ({
-        mediaId: row.mediaId,
-        title: row.title,
-        posterPath: row.posterPath,
-        releaseYear: row.releaseYear,
-        rating: Number(row.averageRating)
-      }))
-    );
-  }
-
-  if (connectionRecommendations.length < HOMEPAGE_RECOMMENDATION_LIMIT && watched.length > 0) {
-    connectionRecommendations = mergeRecommendations(
-      connectionRecommendations,
-      await getTasteBasedRecommendations(watched, releaseDateLte)
-    );
-  }
-
-  if (connectionRecommendations.length < HOMEPAGE_RECOMMENDATION_LIMIT) {
-    connectionRecommendations = mergeRecommendations(
-      connectionRecommendations,
-      await getRandomGenreRecommendations(watched, releaseDateLte)
-    );
-  }
+  const recommendationSections = (
+    await Promise.all([
+      getConnectionRecommendations({ connectedUserIds, watched, watchNext }),
+      getTopGenreRecommendations({ watched, watchNext, today: releaseDateLte }),
+      getLeadActorRecommendations({ watched, watchNext, today: releaseDateLte })
+    ])
+  ).filter((section) => section !== null);
 
   return {
     user,
     inTheaters: inTheatersUnwatched,
     watched,
     watchNext,
-    connectionRecommendations,
+    recommendationSections,
     reviews
   };
 };
