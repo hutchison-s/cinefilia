@@ -173,7 +173,7 @@
     </article>
   </div>
 
-  <article class="rounded-xl border border-slate-800 bg-black/35 p-5">
+  <article id="pending-invites" class="scroll-mt-24 rounded-xl border border-slate-800 bg-black/35 p-5">
     <h2 class="text-lg font-semibold text-white">Pending Invites</h2>
 
     {#if data.connections.incomingPending.length === 0}

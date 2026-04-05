@@ -15,6 +15,7 @@
     let releaseYear = $derived(data.movie ? new Date(data.movie.release_date).getFullYear() : null);
 
     let showReviewModal = $state(false);
+    let reviewModalIsNewlyWatched = $state(false);
 
     let castCollapsed = $state(true);
     let imagesCollapsed = $state(true);
@@ -41,8 +42,8 @@
         try {
             await navigator.share({
             title: 'Movie Recommendation on Cinefilia',
-            text: `Add ${data.movie.title} to your Watch Next list!`,
-            url: `${baseUrl}/rec/${data.movie.id}`
+            text: `Check out ${data.movie.title} on Cinefilia.`,
+            url: `${baseUrl}/movie/${data.movie.id}`
             });
         } catch (err) {
             console.log(err);
@@ -79,10 +80,20 @@
             body: new FormData()
         });
         if (response.ok) {
-            showReviewModal = true;
             if (data.movieWatchNext) {
-                await handleRemoveFromWatchNext();
+                const removeResponse = await fetch(`?/removeFromWatchNext`, {
+                    method: 'POST',
+                    body: new FormData()
+                });
+
+                if (!removeResponse.ok) {
+                    alert('Failed to remove movie from Watchlist.');
+                }
             }
+
+            await invalidateAll();
+            reviewModalIsNewlyWatched = true;
+            showReviewModal = true;
         } else {
             alert('Failed to mark movie as watched.');
         }
@@ -116,9 +127,11 @@
             data.movieWatched = { ...data.movieWatched, rating }; // Update local state with new rating
             // @ts-ignore
             data.movieReview = { ...data.movieReview, body: review }; // Update local state with new review
+            reviewModalIsNewlyWatched = false;
             await invalidateAll(); // Refresh data to show the new review
         } else {
             alert('Failed to add review.');
+            throw new Error('Failed to add review.');
         }
     };
 
@@ -126,6 +139,25 @@
 
 <svelte:head>
     <title>{data.movie?.title ? `${data.movie.title} - Cinefilia` : 'Movie - Cinefilia'}</title>
+    <meta
+        name="description"
+        content={data.movie?.overview || `Check out ${data.movie?.title || 'this movie'} on Cinefilia.`}
+    />
+    <meta property="og:title" content={data.movie?.title ? `${data.movie.title} - Cinefilia` : 'Movie - Cinefilia'} />
+    <meta
+        property="og:description"
+        content={data.movie?.overview || `Check out ${data.movie?.title || 'this movie'} on Cinefilia.`}
+    />
+    <meta property="og:image" content={data.ogImageUrl} />
+    <meta property="og:image:alt" content={data.movie?.title ? `${data.movie.title} poster on a Cinefilia backdrop` : 'Cinefilia movie card'} />
+    <meta property="og:type" content="website" />
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:title" content={data.movie?.title ? `${data.movie.title} - Cinefilia` : 'Movie - Cinefilia'} />
+    <meta
+        property="twitter:description"
+        content={data.movie?.overview || `Check out ${data.movie?.title || 'this movie'} on Cinefilia.`}
+    />
+    <meta property="twitter:image" content={data.ogImageUrl} />
 </svelte:head>
 
 <div class="flex flex-col gap-6 h-full overflow-auto p-2 px-4 max-w-[600px] md:mx-auto">
@@ -183,6 +215,7 @@
             rating={rating}
             review={review}
             onClick={() => {
+                reviewModalIsNewlyWatched = false;
                 showReviewModal = true;
             }}
         />
@@ -286,10 +319,14 @@
 
 <ReviewModal
   isOpen={showReviewModal}
+  isNewlyWatched={reviewModalIsNewlyWatched}
   initialRating={rating}
   initialReview={review}
   onSubmit={handleReviewSubmit}
-  onClose={() => (showReviewModal = false)}
+  onClose={() => {
+    showReviewModal = false;
+    reviewModalIsNewlyWatched = false;
+  }}
 />
 
 {#if selectedImagePath}

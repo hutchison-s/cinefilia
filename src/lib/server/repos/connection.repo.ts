@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, isNotNull, or } from 'drizzle-orm';
+import { and, count, desc, eq, inArray, isNotNull, or } from 'drizzle-orm';
 import { db } from '../db';
 import { connection, watchNext, watched } from '../db/schema';
 import { user as userTable } from '../db/auth.schema';
@@ -90,6 +90,15 @@ export class ConnectionRepo {
       .limit(1);
 
     return Boolean(record);
+  }
+
+  async incomingPendingCount() {
+    const [result] = await db
+      .select({ count: count() })
+      .from(connection)
+      .where(and(eq(connection.recipientUserId, this.userId), eq(connection.status, 'pending')));
+
+    return result ? Number(result.count) : 0;
   }
 
   async list() {

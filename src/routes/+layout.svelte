@@ -8,6 +8,7 @@
 	import { afterNavigate } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import Menu from '$lib/components/Menu.svelte';
+	import { Users, CircleAlert } from 'lucide-svelte';
 
   const { data, children } = $props();
 
@@ -58,7 +59,7 @@
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 <div class="min-h-[100vh] flex flex-col">
-<header class="fixed top-0 left-0 right-0 bg-black/75 backdrop-blur p-4 shadow-lg flex items-center justify-between z-1000">
+<header class="fixed top-0 left-0 right-0 bg-gradient-to-r from-black to-black/60 via-black/80 backdrop-blur p-4 shadow-lg flex items-center justify-between z-1000">
 	<a href="/" class="flex items-center gap-1">
 		<img src={favicon} alt="Cinefilia" class="w-6 h-6" />
 		<span class="text-white font-bold text-lg">Cinefilia</span>
@@ -66,6 +67,19 @@
 	<div class="flex gap-2 items">
 		{#if $page.url.pathname !== '/' && showBackButton}
 			<BackButton />
+		{/if}
+		{#if data.user && data.pendingConnectionInviteCount > 0}
+			<a
+				href="/connections#pending-invites"
+				class="relative rounded-full p-2 text-slate-200 transition hover:bg-slate-800 hover:text-white"
+				title="Review pending connection invites"
+				aria-label={`Review ${data.pendingConnectionInviteCount} pending connection invite${data.pendingConnectionInviteCount === 1 ? '' : 's'}`}
+			>
+				<Users size={18} />
+				<span class="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white">
+					<CircleAlert size={10} strokeWidth={3} />
+				</span>
+			</a>
 		{/if}
 		<Menu links={menuLinks}/>
 		{#if data.user}

@@ -2,42 +2,37 @@
 	import Button from '$lib/components/Button.svelte';
 	import BasicCard from '$lib/components/BasicCard.svelte';
 	import FormInput from '$lib/components/FormInput.svelte';
-	import { enhance } from '$app/forms';
-	import { goto } from '$app/navigation';
-	import type { SubmitFunction } from '@sveltejs/kit';
 
-	export let form;
+	import type { PageData } from './$types';
 
-	let isNewUser = false;
-	const DESTINATION_KEY = 'post_login_destination';
+	const { data, form } = $props<{ data: PageData; form: import('./$types').ActionData }>();
+
+	let isNewUser = $state(false);
+	const pageTitle = $derived(
+		data.isConnectionInviteRedirect
+			? "Let's connect on Cinefilia"
+			: data.isMovieRedirect
+				? 'Movie Recommendation on Cinefilia'
+				: `${isNewUser ? 'Sign Up' : 'Login'} - Cinefilia`
+	);
+	const pageDescription = $derived(
+		data.isConnectionInviteRedirect
+			? 'Log in to review and respond to your Cinefilia connection invite.'
+			: data.isMovieRedirect
+				? 'Log in to open this shared movie recommendation on Cinefilia.'
+				: 'Log in to your Cinefilia account to keep tracking and sharing movies.'
+	);
 
 	function toggleForm() {
 		isNewUser = !isNewUser;
 	}
-
-	function isMovieDestination(value: string | null): value is string {
-		if (!value) return false;
-		return /^\/movie\/\d+$/.test(value);
-	}
-
-	const handleAuthSubmit: SubmitFunction = () => {
-		return async ({ result, update }) => {
-			if ((result.type === 'success' || result.type === 'redirect') && !isNewUser) {
-				const destination = sessionStorage.getItem(DESTINATION_KEY);
-				if (isMovieDestination(destination)) {
-					sessionStorage.removeItem(DESTINATION_KEY);
-					await goto(destination);
-					return;
-				}
-			}
-
-			await update();
-		};
-	};
 </script>
 
 <svelte:head>
-	<title>{isNewUser ? 'Sign Up' : 'Login'} - Cinefilia</title>
+	<title>{pageTitle}</title>
+	<meta name="description" content={pageDescription} />
+	<meta property="og:title" content={pageTitle} />
+	<meta property="og:description" content={pageDescription} />
 </svelte:head>
 
 <BasicCard title={isNewUser ? 'Sign Up' : 'Login'}
@@ -45,7 +40,6 @@
 	<form
 		method="POST"
 		action={isNewUser ? '?/signup' : '?/login'}
-		use:enhance={handleAuthSubmit}
 		class="flex flex-col gap-6"
 	>
 		<FormInput
@@ -100,7 +94,7 @@
 		{isNewUser ? 'Already have an account?' : "Don't have an account?"}
 		<button
 			type="button"
-			on:click={toggleForm}
+			onclick={toggleForm}
 			class="ml-1 text-indigo-500 font-semibold hover:underline bg-transparent border-0 cursor-pointer"
 		>
 			{isNewUser ? 'Log in' : 'Sign up'}

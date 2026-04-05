@@ -198,6 +198,10 @@ export class ConnectionService {
     return ConnectionRepo.forUser(userId).hasConnection(otherUserId);
   }
 
+  static async incomingPendingCount(userId: string) {
+    return ConnectionRepo.forUser(userId).incomingPendingCount();
+  }
+
   static async getInvite(shareId: string, currentUserId: string) {
     const [existingForUser, template] = await Promise.all([
       ConnectionService.findForShareAndRecipient(shareId, currentUserId),

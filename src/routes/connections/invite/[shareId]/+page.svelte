@@ -5,7 +5,16 @@
 </script>
 
 <svelte:head>
-  <title>Connection Invite - Cinefilia</title>
+  <title>Let's connect on Cinefilia</title>
+  <meta
+    name="description"
+    content="Open this invite to connect with another movie lover on Cinefilia."
+  />
+  <meta property="og:title" content="Let's connect on Cinefilia" />
+  <meta
+    property="og:description"
+    content="Open this invite to connect with another movie lover on Cinefilia."
+  />
 </svelte:head>
 
 <section class="mx-auto flex min-h-[70vh] max-w-2xl items-center px-4 py-8">

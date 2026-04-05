@@ -110,7 +110,7 @@ function buildWatchNextActivity(entries: Array<{ userName: string }>) {
   };
 }
 
-export const load: PageServerLoad = async ({ params, parent, locals }) => {
+export const load: PageServerLoad = async ({ params, parent, locals, url }) => {
   const { watched: watchedItems, watchNext: watchNextItems, reviews } = await parent();
   const id = Number(params.id);
   const movie = await TMDB.getMovie(Number(id), [
@@ -209,7 +209,8 @@ export const load: PageServerLoad = async ({ params, parent, locals }) => {
     movieWatched: watchedItems?.find(item => item.mediaId === id.toString()) || null,
     movieWatchNext: watchNextItems?.find(item => item.mediaId === id.toString()) || null,
     movieReview: reviews?.find(r => r.mediaId === id.toString() && r.mediaType === 'movie') || null,
-    connectionActivity
+    connectionActivity,
+    ogImageUrl: `${url.origin}/movie/${id}/og`
   };
 };
 

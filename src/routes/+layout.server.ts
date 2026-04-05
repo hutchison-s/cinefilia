@@ -2,6 +2,7 @@ import type { LayoutServerLoad } from './$types';
 import { Profile } from '$lib/server/profile';
 import { auth } from '$lib/server/auth';
 import { GenreRepo } from '$lib/server/repos/genre.repo';
+import { ConnectionService } from '$lib/server/connection';
 
 export const load: LayoutServerLoad = async ({ request }) => {
   const session = await auth.api.getSession({
@@ -16,10 +17,11 @@ export const load: LayoutServerLoad = async ({ request }) => {
   
     const profile = Profile.forUser(session.user.id);
   
-    const [watched, watchNext, reviews] = await Promise.all([
+    const [watched, watchNext, reviews, pendingConnectionInviteCount] = await Promise.all([
       profile.watched.list(),
       profile.watchNext.list(),
-      profile.reviews.list()
+      profile.reviews.list(),
+      ConnectionService.incomingPendingCount(session.user.id)
     ]);
 
     const connectionCounts = await profile.connections.connectionCountsByMedia();
@@ -33,7 +35,8 @@ export const load: LayoutServerLoad = async ({ request }) => {
       watchNext,
       reviews,
       genres,
-      connectionCounts
+      connectionCounts,
+      pendingConnectionInviteCount
     };
 
 };

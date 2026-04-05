@@ -1,4 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
+import type { PageServerLoad } from './$types';
 import { auth } from '$lib/server/auth';
 import type { Actions } from './$types';
 
@@ -11,6 +12,21 @@ function getSafeRedirect(url: URL) {
 
   return redirectTo;
 }
+
+function isConnectionInviteRedirect(url: URL) {
+  return getSafeRedirect(url).startsWith('/connections/invite/');
+}
+
+function isMovieRedirect(url: URL) {
+  return /^\/movie\/\d+$/.test(getSafeRedirect(url));
+}
+
+export const load: PageServerLoad = async ({ url }) => {
+  return {
+    isConnectionInviteRedirect: isConnectionInviteRedirect(url),
+    isMovieRedirect: isMovieRedirect(url)
+  };
+};
 
 export const actions: Actions = {
   signup: async ({ request, url }) => {

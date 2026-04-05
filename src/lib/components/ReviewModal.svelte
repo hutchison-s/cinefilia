@@ -3,14 +3,16 @@
 
   const props = $props<{
     isOpen: boolean;
+    isNewlyWatched?: boolean;
     initialRating?: number;
     initialReview?: string;
-    onSubmit: (payload: { rating: number; review: string }) => void;
+    onSubmit: (payload: { rating: number; review: string }) => void | Promise<void>;
     onClose: () => void;
   }>();
 
   let {
     isOpen,
+    isNewlyWatched = false,
     initialRating = 0,
     initialReview = '',
     onSubmit,
@@ -19,23 +21,50 @@
 
   let rating = $state(0);
   let review = $state('');
+  let isSubmitting = $state(false);
 
   $effect(() => {
     if (isOpen) {
       rating = initialRating;
       review = initialReview;
+      isSubmitting = false;
     }
   });
 
-  const handleSubmit = () => {
-    onSubmit({ rating, review });
-    handleClose();
+  const handleSubmit = async () => {
+    if (!hasChanges || isSubmitting) {
+      return;
+    }
+
+    isSubmitting = true;
+
+    try {
+      await onSubmit({ rating, review });
+      handleClose();
+    } catch {
+      // Keep the modal open so the user can retry after a failed save.
+    } finally {
+      isSubmitting = false;
+    }
   };
 
   const handleClose = () => {
     rating = 0;
     review = '';
+    isSubmitting = false;
     onClose();
+  };
+
+  const handleBackdropClick = (event: MouseEvent) => {
+    if (event.target === event.currentTarget) {
+      handleClose();
+    }
+  };
+
+  const handleBackdropKeydown = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      handleClose();
+    }
   };
 
   const handleRatingChange = (newRating: number) => {
@@ -45,6 +74,10 @@
   const isEditing = $derived(
     initialRating > 0 || initialReview.length > 0
   );
+  const hasChanges = $derived(
+    rating !== initialRating || review !== initialReview
+  );
+  const dismissLabel = $derived(isNewlyWatched ? 'Skip' : 'Cancel');
 </script>
 
 {#if isOpen}
@@ -53,6 +86,9 @@
     role="dialog"
     aria-modal="true"
     aria-labelledby="review-title"
+    tabindex="-1"
+    onclick={handleBackdropClick}
+    onkeydown={handleBackdropKeydown}
   >
     <div class="bg-gray-900 rounded-lg shadow-lg p-6 max-w-md w-full mx-4">
       <h2
@@ -94,14 +130,15 @@
             onclick={handleClose}
             class="px-4 py-2 rounded-md bg-gray-700 text-white hover:bg-gray-600 transition"
           >
-            Cancel
+            {dismissLabel}
           </button>
           <button
             type="button"
             onclick={handleSubmit}
-            class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition"
+            disabled={!hasChanges || isSubmitting}
+            class="px-4 py-2 rounded-md bg-blue-600 text-white transition disabled:cursor-not-allowed disabled:bg-blue-900/50 disabled:text-blue-100/60 hover:bg-blue-700"
           >
-            OK
+            Save
           </button>
         </div>
       </div>
