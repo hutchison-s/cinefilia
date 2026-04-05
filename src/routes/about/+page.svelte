@@ -1,113 +1,195 @@
+<script lang="ts">
+	import BasicCard from '$lib/components/BasicCard.svelte';
+	import NavButton from '$lib/components/NavButton.svelte';
+	import SectionEyebrow from '$lib/components/SectionEyebrow.svelte';
+
+	const corePillars = [
+		{
+			number: '01',
+			title: 'Organise your history',
+			text: 'Sort and search your watched films with a clean, focused interface. Filter by genre, year, director, or your own ratings to navigate your collection with ease.',
+			tone: 'text-secondary'
+		},
+		{
+			number: '02',
+			title: 'Never lose a recommendation',
+			text: 'Add films to your watchlist the moment someone mentions them. Your queue is always searchable, so no great tip ever slips through the cracks.',
+			tone: 'text-secondary'
+		},
+		{
+			number: '03',
+			title: 'Recommend through your network',
+			text: 'Share recommendations directly on the site, connect to friends, and browse their lists to see what they are watching, saving, and loving lately.',
+			tone: 'text-secondary'
+		}
+	];
+
+	const philosophyItems = [
+		{
+			title: 'No algorithm. No noise.',
+			text: 'We do not push recommendations at you or clutter your view with trending content. Cinefilia is a quiet space for your own taste to develop, uninfluenced.'
+		},
+		{
+			title: 'Your ratings belong to you.',
+			text: 'There is no social score here. Your ratings are your own record, a private calibration of what cinema means to you, not a performance for an audience.'
+		},
+		{
+			title: 'Clean by design.',
+			text: 'Every feature earns its place. We believe the best tool for a cinephile is one that gets out of the way and lets the films be the focus.'
+		},
+		{
+			title: 'Powered by TMDB.',
+			text: 'Film data comes from The Movie Database, a community-maintained resource covering hundreds of thousands of titles.'
+		}
+	];
+</script>
+
 <svelte:head>
 	<title>About - Cinefilia</title>
 </svelte:head>
 
-<!-- Hero -->
-<div class="relative bg-black overflow-hidden">
-	<div class="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-primary/5 blur-3xl pointer-events-none"></div>
-	<div class="absolute top-20 right-20 w-64 h-64 rounded-full bg-secondary/5 blur-3xl pointer-events-none"></div>
+<div class="relative overflow-hidden">
+	<div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(111,28,183,0.22),transparent_35%),radial-gradient(circle_at_80%_20%,rgba(46,162,212,0.14),transparent_30%),linear-gradient(180deg,rgba(10,10,10,0.96),rgba(0,0,0,1))]"></div>
+	<div class="absolute inset-x-0 top-0 h-px bg-gradient-primary-secondary opacity-70"></div>
 
-	<div class="relative z-10 max-w-5xl mx-auto px-6 sm:px-12 pt-24 pb-20">
-		<p class="flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-primary mb-6 font-medium">
-			<span class="block w-8 h-px bg-primary"></span>
-			About Cinefilia
-		</p>
-		<h1 class="text-4xl sm:text-5xl lg:text-6xl font-semibold text-white leading-tight mb-6 tracking-tight max-w-3xl">
-			Built for people who take
-			<span class="italic font-light text-transparent bg-clip-text bg-gradient-primary-secondary"> films seriously.</span>
-		</h1>
-		<p class="text-slate-400 text-base leading-relaxed max-w-xl font-light">
-			Cinefilia is a personal movie tracking app for the kind of viewer who can't just say "it was good."
-			It's a place to keep a true record of what you've watched, what you thought, and what you're hungry to see next.
-		</p>
-	</div>
+	<section class="relative z-10 mx-auto max-w-7xl px-6 py-16 sm:px-12 lg:px-20 lg:py-24">
+		<div class="grid gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)] lg:items-center">
+			<div class="max-w-3xl">
+				<SectionEyebrow text="About Cinefilia" textClass="mb-6" />
+				<h1 class="mb-6 text-4xl font-semibold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
+					Built for people who take
+					<span class="italic font-light text-transparent bg-clip-text bg-gradient-primary-secondary">
+						films seriously.
+					</span>
+				</h1>
+				<p class="max-w-2xl text-base font-light leading-relaxed text-slate-300 sm:text-lg">
+					Cinefilia is a personal movie tracking app for the kind of viewer who cannot just say
+					"it was good." It is a place to keep a true record of what you have watched, what you
+					thought, and what you are hungry to see next.
+				</p>
+				<div class="mt-8 flex flex-wrap items-center gap-4">
+					<NavButton type="primary" path="/login">Create Free Account</NavButton>
+					<a
+						href="/"
+						class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-xs font-medium uppercase tracking-[0.2em] text-slate-300 transition-colors hover:text-white"
+					>
+						Back home
+						<span aria-hidden="true">→</span>
+					</a>
+				</div>
+			</div>
+
+			<BasicCard cardClass="max-w-none p-6 sm:p-7">
+				<p class="text-xs font-medium uppercase tracking-[0.18em] text-primary">What it is for</p>
+				<h2 class="mt-4 text-2xl font-semibold leading-snug text-white">
+					A calm place to keep your movie life in order.
+				</h2>
+				<p class="mt-4 text-sm font-light leading-relaxed text-slate-400">
+					Track what you watched, remember what mattered, and build a film archive that reflects your
+					taste instead of someone else's feed.
+				</p>
+				<div class="mt-6 grid gap-3 sm:grid-cols-2">
+					<div class="rounded-xl border border-white/8 bg-white/[0.03] p-4">
+						<div class="text-lg font-semibold text-secondary">Private taste</div>
+						<p class="mt-2 text-sm font-light leading-relaxed text-slate-400">Your ratings and watch history stay centered on your own perspective.</p>
+					</div>
+					<div class="rounded-xl border border-white/8 bg-white/[0.03] p-4">
+						<div class="text-lg font-semibold text-secondary">Focused tools</div>
+						<p class="mt-2 text-sm font-light leading-relaxed text-slate-400">Search, logging, and watchlists without extra clutter competing for attention.</p>
+					</div>
+				</div>
+			</BasicCard>
+		</div>
+	</section>
 </div>
 
-<!-- Two-panel feature split -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-px bg-slate-800/30">
-	<div class="bg-zinc-950 px-8 sm:px-12 py-16">
-		<div class="text-4xl font-light text-primary/20 mb-6 italic">01</div>
-		<h3 class="text-xl font-medium text-white mb-4">Organise your history</h3>
-		<p class="text-slate-400 text-sm leading-relaxed font-light">
-			Sort and search your watched films with a clean, focused interface.
-			Filter by genre, year, director, or your own ratings to navigate
-			your collection with ease.
-		</p>
-	</div>
-	<div class="bg-zinc-950 px-8 sm:px-12 py-16">
-		<div class="text-4xl font-light text-secondary/20 mb-6 italic">02</div>
-		<h3 class="text-xl font-medium text-white mb-4">Never lose a recommendation</h3>
-		<p class="text-slate-400 text-sm leading-relaxed font-light">
-			Add films to your watchlist the moment someone mentions them.
-			Your queue is always searchable, so no great tip ever slips through the cracks.
-		</p>
-	</div>
-</div>
-
-<!-- Philosophy -->
-<div class="bg-black border-t border-slate-800/60 px-6 sm:px-12 lg:px-20 py-24">
-	<div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-16">
-
-		<div class="lg:sticky lg:top-24 self-start">
-			<p class="flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-primary mb-4 font-medium">
-				<span class="block w-6 h-px bg-primary"></span>
-				Our philosophy
-			</p>
-			<h2 class="text-2xl sm:text-3xl font-semibold text-white leading-snug">
+<section class="relative overflow-hidden border-t border-white/10 px-6 py-20 sm:px-12 lg:px-20">
+	<!-- <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0)),radial-gradient(circle_at_20%_0%,rgba(111,28,183,0.08),transparent_30%),radial-gradient(circle_at_80%_100%,rgba(46,162,212,0.06),transparent_32%)] pointer-events-none"></div> -->
+	<div class="relative z-10 mx-auto max-w-7xl">
+		<div class="mb-10 max-w-xl">
+			<SectionEyebrow text="Core ideas" textClass="mb-4" lineWidthClass="w-6" />
+			<h2 class="text-3xl font-semibold leading-tight text-white sm:text-4xl">
 				Simple tools for serious viewers.
 			</h2>
 		</div>
 
-		<div class="lg:col-span-2 divide-y divide-slate-800/60">
-			{#each [
-				{ title: 'No algorithm. No noise.', text: 'We don\'t push recommendations at you or clutter your view with trending content. Cinefilia is a quiet space for your own taste to develop, uninfluenced.' },
-				{ title: 'Your ratings belong to you.', text: 'There\'s no social score here. Your ratings are your own record — a private calibration of what cinema means to you, not a performance for an audience.' },
-				{ title: 'Clean by design.', text: 'Every feature earns its place. We believe the best tool for a cinephile is one that gets out of the way and lets the films be the focus.' },
-				{ title: 'Powered by TMDB.', text: 'Film data comes from The Movie Database — a community-maintained resource covering hundreds of thousands of titles.' },
-			] as item}
-				<div class="py-10 group">
-					<h4 class="flex items-center gap-3 text-white font-medium mb-3 text-base">
-						<span class="w-1.5 h-1.5 rounded-full bg-primary group-hover:bg-secondary transition-colors flex-shrink-0"></span>
-						{item.title}
-					</h4>
-					<p class="text-slate-400 text-sm leading-relaxed font-light pl-4">{item.text}</p>
-				</div>
+		<div class="grid gap-4 lg:grid-cols-3">
+			{#each corePillars as item}
+				<BasicCard cardClass="max-w-none p-6 sm:p-8">
+					<div class={`mb-6 text-5xl font-semibold italic tracking-tight ${item.tone}`}>{item.number}</div>
+					<h3 class="text-xl font-medium text-white">{item.title}</h3>
+					<p class="mt-4 text-sm font-light leading-relaxed text-slate-400">{item.text}</p>
+				</BasicCard>
 			{/each}
 		</div>
 	</div>
-</div>
+</section>
 
-<!-- TMDB credit -->
-<div class="bg-zinc-950 border-t border-slate-800/60 px-6 sm:px-12 lg:px-20 py-16">
-	<div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-start sm:items-center gap-8">
-		<div class="flex-shrink-0 px-5 py-3 rounded bg-[#01d277] text-black font-bold text-sm tracking-wide">
-			TMDB
+<section class="relative overflow-hidden border-t border-white/10 bg-black px-6 py-24 sm:px-12 lg:px-20">
+	<div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0)),radial-gradient(circle_at_75%_10%,rgba(111,28,183,0.08),transparent_30%)] pointer-events-none"></div>
+	<div class="relative z-10 mx-auto max-w-7xl grid gap-10 lg:grid-cols-[minmax(240px,0.8fr)_minmax(0,1.2fr)] lg:gap-16">
+		<div class="self-start lg:sticky lg:top-24">
+			<SectionEyebrow text="Our philosophy" textClass="mb-4" lineWidthClass="w-6" />
+			<h2 class="text-2xl font-semibold leading-snug text-white sm:text-3xl">
+				Designed to stay out of the way of the films.
+			</h2>
 		</div>
-		<p class="text-slate-400 text-sm leading-relaxed font-light max-w-lg">
-			This product uses the
-			<a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer"
-				class="text-secondary hover:underline">
-				TMDB API
-			</a>
-			but is not endorsed or certified by TMDB. All film metadata and information
-			are sourced from The Movie Database community.
-		</p>
-	</div>
-</div>
 
-<!-- CTA -->
-<div class="bg-black border-t border-slate-800/60 px-6 sm:px-12 lg:px-20 py-24 text-center relative overflow-hidden">
-	<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(111,28,183,0.08)_0%,transparent_70%)] pointer-events-none"></div>
-	<div class="relative z-10">
-		<p class="text-xs uppercase tracking-[0.2em] text-primary mb-6 font-medium">Join us</p>
-		<h2 class="text-3xl sm:text-4xl font-semibold text-white mb-4 leading-snug">
-			Start building your
-			<span class="italic font-light text-transparent bg-clip-text bg-gradient-primary-secondary"> film archive.</span>
-		</h2>
-		<p class="text-slate-500 text-sm mb-10 font-light">Free to use. Always.</p>
-		<a href="/login"
-			class="inline-block px-8 py-3 bg-gradient-primary text-white text-sm font-medium tracking-wide hover:opacity-90 transition-opacity rounded-sm">
-			Create Free Account
-		</a>
+		<div class="grid gap-4">
+			{#each philosophyItems as item}
+				<BasicCard cardClass="max-w-none p-6 sm:p-7">
+					<h3 class="flex items-center gap-3 text-base font-medium text-white">
+						<span class="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-primary"></span>
+						{item.title}
+					</h3>
+					<p class="mt-3 pl-4 text-sm font-light leading-relaxed text-slate-400">{item.text}</p>
+				</BasicCard>
+			{/each}
+		</div>
 	</div>
-</div>
+</section>
+
+<section class="relative overflow-hidden border-t border-white/10 px-6 py-16 sm:px-12 lg:px-20">
+	<!-- <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.015),rgba(255,255,255,0)),radial-gradient(circle_at_15%_50%,rgba(46,162,212,0.08),transparent_28%)] pointer-events-none"></div> -->
+	<div class="relative z-10 mx-auto max-w-5xl">
+		<BasicCard cardClass="max-w-none p-6 sm:p-8">
+			<div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+				<div class="flex items-start gap-4">
+					<div class="flex-shrink-0 rounded-lg bg-[#01d277] px-5 py-3 text-sm font-bold tracking-wide text-black">
+						TMDB
+					</div>
+					<p class="max-w-2xl text-sm font-light leading-relaxed text-slate-400">
+						This product uses the
+						<a
+							href="https://www.themoviedb.org/"
+							target="_blank"
+							rel="noopener noreferrer"
+							class="text-secondary transition-colors hover:text-white"
+						>
+							TMDB API
+						</a>
+						but is not endorsed or certified by TMDB. All film metadata and information are sourced from The Movie Database community.
+					</p>
+				</div>
+			</div>
+		</BasicCard>
+	</div>
+</section>
+
+<section class="relative overflow-hidden px-6 py-24 text-center sm:px-12 lg:px-20">
+	<div class="relative z-10 mx-auto max-w-3xl">
+		<SectionEyebrow text="Join us" textClass="mb-6" showLine={false} align="center" />
+		<h2 class="text-3xl font-semibold leading-tight text-white sm:text-4xl">
+			Start building your
+			<span class="italic font-light text-transparent bg-clip-text bg-gradient-primary-secondary">
+				film archive.
+			</span>
+		</h2>
+		<p class="mx-auto mt-4 max-w-xl text-sm font-light leading-relaxed text-slate-400">
+			Free to use. Always focused on movies.
+		</p>
+		<div class="mt-10 flex justify-center">
+			<NavButton type="primary" path="/login">Create Free Account</NavButton>
+		</div>
+	</div>
+</section>

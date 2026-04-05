@@ -2,6 +2,7 @@
 	import LandingPage from '$lib/components/LandingPage.svelte';
 	import HorizontalMovieScroll from '$lib/components/HorizontalMovieScroll.svelte';
 	import Button from '$lib/components/Button.svelte';
+	import SectionEyebrow from '$lib/components/SectionEyebrow.svelte';
 	import { goto } from '$app/navigation';
     
     let { data } = $props()
@@ -20,6 +21,21 @@
 {#if !data.session}
  <LandingPage />
 {:else} 
+    <section class="mx-auto max-w-7xl px-6 pt-10 pb-4 sm:px-12 lg:px-20">
+        <div class="max-w-3xl">
+            <SectionEyebrow text="Welcome back" textClass="mb-6" />
+            <h1 class="text-4xl font-semibold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
+                Your next great movie night
+                <span class="italic font-light text-transparent bg-clip-text bg-gradient-primary-secondary">
+                    starts here.
+                </span>
+            </h1>
+            <p class="mt-5 max-w-2xl text-base font-light leading-relaxed text-slate-300 sm:text-lg">
+                Pick up where you left off, revisit what you loved, and keep your watchlist moving.
+            </p>
+        </div>
+    </section>
+
     <a href="/watch-next">
         <h3 class="text-center border-y border-primary bg-gradient-to-br via-transparent to-primary/50 font-thin uppercase text-white text-xl font-semibold py-2 mb-2 mt-2">
             Watch Next
