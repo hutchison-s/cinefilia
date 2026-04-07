@@ -5,7 +5,7 @@ import {
   getLeadActorRecommendations,
   getTopGenreRecommendations
 } from '$lib/server/getRecommendations';
-import type { PageServerLoad } from './$types';
+import type { HomeDiscoveryPayload } from '$lib/types/homeDiscovery';
 
 function formatDate(date: Date) {
   return date.toISOString().slice(0, 10);
@@ -57,53 +57,35 @@ async function getPreferredGenreIds(
   return preferredGenreIds;
 }
 
-export const load: PageServerLoad = async ({ locals }) => {
-  const user = locals.user;
+export async function getHomeDiscovery(userId: string): Promise<HomeDiscoveryPayload> {
   const today = new Date();
   const monthAgo = new Date();
   monthAgo.setDate(today.getDate() - 30);
   const releaseDateGte = formatDate(monthAgo);
   const releaseDateLte = formatDate(today);
 
-  const inTheaters = await TMDB.getByReleaseDateRange({
-    page: 1,
-    sortBy: 'popularity.desc',
-    originCountry: 'US',
-    region: 'US',
-    releaseDateGte,
-    releaseDateLte
-  });
+  const profile = Profile.forUser(userId);
 
-  const inTheatersMovies = inTheaters.results
-    .filter((movie) => movie.poster_path)
-    .slice(0, 30)
-    .map((movie) => ({
-      mediaId: movie.id,
-      title: movie.title,
-      posterPath: movie.poster_path,
-      rating: movie.vote_average,
-      releaseDate: movie.release_date
-    }));
-
-  if (!user) {
-    return { user: null, inTheaters: inTheatersMovies };
-  }
-
-  const profile = Profile.forUser(user.id);
-
-  const [watched, watchNext, reviews] = await Promise.all([
+  const [watched, watchNext, connectedUserIds, inTheaters] = await Promise.all([
     profile.watched.list(),
     profile.watchNext.list(),
-    profile.reviews.list()
+    profile.connections.connectedUserIds(),
+    TMDB.getByReleaseDateRange({
+      page: 1,
+      sortBy: 'popularity.desc',
+      originCountry: 'US',
+      region: 'US',
+      releaseDateGte,
+      releaseDateLte
+    })
   ]);
 
-  const connectedUserIds = await profile.connections.connectedUserIds();
   const preferredGenreIds = await getPreferredGenreIds(watched, watchNext);
-
   const watchedIds = new Set(
     watched.map((item) => Number(item.mediaId)).filter((id) => Number.isFinite(id))
   );
-  const inTheatersUnwatched = inTheaters.results
+
+  const inTheatersMovies = inTheaters.results
     .filter(
       (movie) =>
         movie.poster_path &&
@@ -130,11 +112,7 @@ export const load: PageServerLoad = async ({ locals }) => {
   ).filter((section) => section !== null);
 
   return {
-    user,
-    inTheaters: inTheatersUnwatched,
-    watched,
-    watchNext,
-    recommendationSections,
-    reviews
+    inTheaters: inTheatersMovies,
+    recommendationSections
   };
-};
+}
